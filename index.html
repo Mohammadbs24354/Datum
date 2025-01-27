@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ar">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اختيار السنة والشهر</title>
+    <link rel="stylesheet" href="main.css">
+</head>
+
+<body>
+    <div class="container">
+        <table id="selectionTable">
+            <tr>
+                <td colspan="3">
+                    <select id="yearSelect1">
+                        <option value="" disabled selected>2025</option>
+                    </select>
+                </td>
+                <td colspan="3">
+                    <select id="yearSelect2">
+                        <option value="" disabled selected>2038</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+            </tr>
+            <script>
+                document.write('<tr>');
+                for (let month = 1; month <= 12; month++) {
+                    document.write(`<td class="month">${month}</td>`);
+                    if (month % 6 === 0) document.write('</tr><tr>');
+                }
+                document.write('</tr>');
+            </script>
+        </table>
+        <input type="text" id="selectedDate">
+    </div>
+
+    <script src="main.js"></script>
+</body>
+
+</html>
