@@ -8,6 +8,7 @@ Datum is a responsive Arabic world dashboard built with vanilla HTML, CSS and Ja
 - Current weather, five-day forecast, sunrise, sunset and daily maximum UV index.
 - Interactive world map powered by Leaflet and OpenStreetMap.
 - Search for cities, select a point on the map, or use browser geolocation.
+- Save up to 12 favorite places locally in the browser and revisit them later.
 - Currency converter for EUR, USD, GBP, AED, EGP, SAR, TRY, CHF, JPY and CAD.
 - Global news headlines with topic search and links to original publishers.
 - Date explorer and date-difference calculator.
