@@ -184,7 +184,7 @@ function initDateTools() {
   calculateDays();
 }
 
-document.getElementById("weather-search-button").addEventListener("click", () => searchLocation("weather-search-input", "weather-status", false));
+document.getElementById("weather-search-button").addEventListener("click", () => searchLocation("weather-search-input", "weather-status", true));
 document.getElementById("weather-search-input").addEventListener("keydown", event => { if (event.key === "Enter") searchLocation("weather-search-input", "weather-status", false); });
 document.getElementById("map-search-button").addEventListener("click", () => searchLocation("map-search-input", "map-status", true));
 document.getElementById("map-search-input").addEventListener("keydown", event => { if (event.key === "Enter") searchLocation("map-search-input", "map-status", true); });
