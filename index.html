@@ -22,6 +22,8 @@
         <a class="nav-link" href="#world-clock"><span>◷</span> الساعة العالمية</a>
         <a class="nav-link" href="#weather"><span>☼</span> الطقس</a>
         <a class="nav-link" href="#map-section"><span>◎</span> الخريطة</a>
+        <a class="nav-link" href="#currency"><span>⇄</span> العملات</a>
+        <a class="nav-link" href="#world-news"><span>▤</span> أخبار العالم</a>
         <a class="nav-link" href="#date-tools"><span>▦</span> أدوات التاريخ</a>
       </nav>
       <div class="sidebar-bottom">
@@ -42,7 +44,7 @@
       </header>
 
       <section class="welcome-row" id="overview">
-        <div><p class="eyebrow">مرحباً بك في DATUM</p><h2>العالم بين يديك.</h2><p class="muted">تابع الوقت والطقس واستكشف الأماكن من لوحة واحدة.</p></div>
+        <div><p class="eyebrow">مرحباً بك في DATUM</p><h2>العالم بين يديك.</h2><p class="muted">تابع الوقت والطقس والعملات وأخبار العالم واستكشف الأماكن من لوحة واحدة.</p></div>
         <div class="local-time-card"><span>الوقت المحلي · برلين</span><strong id="local-clock">--:--:--</strong><small id="local-date">جارٍ تحميل التاريخ…</small></div>
       </section>
 
@@ -67,6 +69,7 @@
             <div class="weather-card-top"><div><span class="weather-location-label">الطقس في</span><h3 id="weather-city">برلين، ألمانيا</h3></div><span class="weather-symbol" id="weather-symbol">☀</span></div>
             <div class="temperature-line"><strong id="current-temp">--°</strong><div><b id="weather-description">جارٍ تحميل الطقس…</b><span id="feels-like">الإحساس: —</span></div></div>
             <div class="weather-details"><div><span>الرطوبة</span><b id="humidity">—</b></div><div><span>الرياح</span><b id="wind-speed">—</b></div><div><span>احتمال المطر</span><b id="rain-chance">—</b></div></div>
+            <div class="sun-times"><div><span>☀ الشروق</span><b id="sunrise-time">—</b></div><div><span>☾ الغروب</span><b id="sunset-time">—</b></div><div><span>مؤشر الأشعة UV</span><b id="uv-index">—</b></div></div>
           </article>
           <article class="forecast-card"><div class="forecast-heading"><h3>توقعات الأيام القادمة</h3><span>5 أيام</span></div><div id="forecast-list" class="forecast-list"><p class="muted">جارٍ تحميل التوقعات…</p></div></article>
         </div>
@@ -81,6 +84,31 @@
         <p id="map-status" class="status-message" role="status"></p>
       </section>
 
+      <section class="section-block" id="currency">
+        <div class="section-heading"><div><p class="eyebrow">الأسواق العالمية</p><h2>محول العملات</h2></div><span class="section-note">أسعار مرجعية محدثة من Frankfurter</span></div>
+        <div class="currency-layout">
+          <article class="currency-card">
+            <div class="currency-title"><span class="tool-icon">⇄</span><div><h3>حوّل بين العملات</h3><p>اختر العملتين وأدخل المبلغ لمعرفة القيمة التقريبية.</p></div></div>
+            <div class="currency-fields">
+              <div><label for="amount-input">المبلغ</label><input id="amount-input" type="number" min="0" step="any" value="100" inputmode="decimal"></div>
+              <div><label for="from-currency">من</label><select id="from-currency"><option value="EUR">EUR · يورو</option><option value="USD">USD · دولار أمريكي</option><option value="GBP">GBP · جنيه إسترليني</option><option value="AED">AED · درهم إماراتي</option><option value="EGP">EGP · جنيه مصري</option><option value="SAR">SAR · ريال سعودي</option><option value="TRY">TRY · ليرة تركية</option><option value="CHF">CHF · فرنك سويسري</option><option value="JPY">JPY · ين ياباني</option><option value="CAD">CAD · دولار كندي</option></select></div>
+              <button class="swap-button" id="swap-currencies" type="button" aria-label="تبديل العملتين">⇄</button>
+              <div><label for="to-currency">إلى</label><select id="to-currency"><option value="USD">USD · دولار أمريكي</option><option value="EUR">EUR · يورو</option><option value="GBP">GBP · جنيه إسترليني</option><option value="AED">AED · درهم إماراتي</option><option value="EGP">EGP · جنيه مصري</option><option value="SAR">SAR · ريال سعودي</option><option value="TRY">TRY · ليرة تركية</option><option value="CHF">CHF · فرنك سويسري</option><option value="JPY">JPY · ين ياباني</option><option value="CAD">CAD · دولار كندي</option></select></div>
+            </div>
+            <div class="conversion-result"><span>القيمة المحوّلة</span><strong id="conversion-value">—</strong><small id="conversion-rate">جارٍ جلب سعر الصرف…</small></div>
+            <p id="currency-status" class="status-message" role="status"></p>
+          </article>
+          <article class="currency-info-card"><span class="currency-info-icon">↗</span><h3>أسعار مرجعية وليست سعر تنفيذ</h3><p>تعرض Datum أسعار الصرف المرجعية المنشورة عبر Frankfurter. قد تختلف الأسعار الفعلية لدى البنوك وشركات التحويل بسبب الرسوم وفروق الأسعار.</p><div class="rate-meta"><span>المصدر</span><a href="https://www.frankfurter.app/" target="_blank" rel="noopener">Frankfurter API ↗</a></div><div class="rate-meta"><span>التحديث</span><b id="rate-date">—</b></div></article>
+        </div>
+      </section>
+
+      <section class="section-block" id="world-news">
+        <div class="section-heading"><div><p class="eyebrow">آخر المستجدات</p><h2>أخبار العالم</h2></div><span class="section-note">عناوين من مصادر إخبارية عامة</span></div>
+        <div class="news-toolbar"><div class="search-control news-search"><input id="news-query" type="search" placeholder="ابحث عن موضوع، دولة أو حدث…" value="world"><button id="news-search-button" type="button">بحث</button></div><button class="secondary-button" id="news-refresh" type="button">↻ تحديث الأخبار</button></div>
+        <div id="news-list" class="news-grid"><article class="news-placeholder">جارٍ تحميل الأخبار…</article></div>
+        <p id="news-status" class="status-message" role="status">تُعرض عناوين وروابط خارجية؛ تحقق من المصدر الأصلي للتفاصيل.</p>
+      </section>
+
       <section class="section-block date-section" id="date-tools">
         <div class="section-heading"><div><p class="eyebrow">التخطيط والتنظيم</p><h2>أدوات التاريخ</h2></div><span class="section-note">اختر تاريخاً واحسب المدة</span></div>
         <div class="date-tools-grid">
@@ -89,7 +117,7 @@
         </div>
       </section>
 
-      <footer class="footer"><span>© <span id="year-now"></span> Datum. صُمم لاستكشاف العالم.</span><span>الطقس: Open-Meteo · الخرائط: © OpenStreetMap</span></footer>
+      <footer class="footer"><span>© <span id="year-now"></span> Datum. صُمم لاستكشاف العالم.</span><span>الطقس: Open-Meteo · العملات: Frankfurter · الأخبار: GDELT · الخرائط: © OpenStreetMap</span></footer>
     </main>
   </div>
 
