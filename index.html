@@ -78,9 +78,10 @@
 
       <section class="section-block" id="map-section">
         <div class="section-heading"><div><p class="eyebrow">استكشف الكوكب</p><h2>الخريطة التفاعلية</h2></div><span class="section-note">اضغط على الخريطة لاختيار موقع</span></div>
-        <div class="map-toolbar"><div class="search-control map-search"><input id="map-search-input" type="search" placeholder="ابحث عن مدينة أو دولة…" autocomplete="off"><button id="map-search-button" type="button">بحث على الخريطة</button></div><button class="secondary-button" id="locate-button" type="button">◎ موقعي الحالي</button></div>
+        <div class="map-toolbar"><div class="search-control map-search"><input id="map-search-input" type="search" placeholder="ابحث عن مدينة أو دولة…" autocomplete="off"><button id="map-search-button" type="button">بحث على الخريطة</button></div><div class="map-actions"><button class="secondary-button" id="save-place-button" type="button">＋ حفظ الموقع</button><button class="secondary-button" id="locate-button" type="button">◎ موقعي الحالي</button></div></div>
         <div id="map" class="map-canvas" aria-label="خريطة تفاعلية للعالم"></div>
         <div class="map-footer"><div><span class="map-pin"></span><span id="selected-place">الموقع المحدد: برلين، ألمانيا</span></div><span id="coordinates">52.5200° N, 13.4050° E</span></div>
+        <div class="favorites-panel"><div class="favorites-heading"><h3>أماكنك المحفوظة</h3><span>تبقى محفوظة على هذا الجهاز</span></div><div id="favorite-places" class="favorite-places"><p class="favorites-empty">لم تحفظ أي أماكن بعد.</p></div></div>
         <p id="map-status" class="status-message" role="status"></p>
       </section>
 
