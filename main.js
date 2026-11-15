@@ -2,6 +2,7 @@ const DEFAULT_LOCATION = { name: "برلين، ألمانيا", latitude: 52.52,
 let activeLocation = { ...DEFAULT_LOCATION };
 let map;
 let marker;
+const FAVORITES_KEY = "datum-favorite-places-v1";
 
 const cities = [
   { name: "برلين · ألمانيا", zone: "Europe/Berlin" },
@@ -125,6 +126,84 @@ function setLocation(location, updateMap = true) {
     marker.bindPopup(location.name).openPopup();
   }
   fetchWeather(location.latitude, location.longitude, location.name);
+}
+
+function readFavorites() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(FAVORITES_KEY) || "[]");
+    return Array.isArray(saved) ? saved.filter(place =>
+      place && typeof place.name === "string" &&
+      Number.isFinite(place.latitude) && Number.isFinite(place.longitude)
+    ).slice(0, 12) : [];
+  } catch {
+    return [];
+  }
+}
+
+function renderFavorites() {
+  const container = document.getElementById("favorite-places");
+  const favorites = readFavorites();
+  if (!favorites.length) {
+    container.innerHTML = '<p class="favorites-empty">لم تحفظ أي أماكن بعد. اختر مدينة أو نقطة على الخريطة ثم اضغط «حفظ الموقع».</p>';
+    return;
+  }
+  container.innerHTML = favorites.map((place, index) => {
+    const safeName = place.name.replace(/[&<>"']/g, char => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]);
+    return `<div class="favorite-place"><button class="favorite-select" type="button" data-favorite-index="${index}">📍 ${safeName}</button><button class="favorite-remove" type="button" data-remove-favorite="${index}" aria-label="حذف ${safeName}">×</button></div>`;
+  }).join("");
+}
+
+function saveCurrentPlace() {
+  const favorites = readFavorites();
+  const exists = favorites.some(place =>
+    Math.abs(place.latitude - activeLocation.latitude) < 0.0001 &&
+    Math.abs(place.longitude - activeLocation.longitude) < 0.0001
+  );
+  const status = document.getElementById("map-status");
+  if (exists) {
+    status.textContent = "هذا الموقع محفوظ بالفعل.";
+    return;
+  }
+  if (favorites.length >= 12) {
+    status.textContent = "وصلت إلى الحد الأقصى: 12 موقعاً محفوظاً. احذف موقعاً لإضافة آخر.";
+    return;
+  }
+  favorites.unshift({ ...activeLocation });
+  try {
+    localStorage.setItem(FAVORITES_KEY, JSON.stringify(favorites));
+    renderFavorites();
+    status.textContent = "تم حفظ " + activeLocation.name + " على هذا الجهاز.";
+  } catch {
+    status.textContent = "تعذر الحفظ. تحقق من إعدادات التخزين في المتصفح.";
+  }
+}
+
+function initFavorites() {
+  renderFavorites();
+  document.getElementById("save-place-button").addEventListener("click", saveCurrentPlace);
+  document.getElementById("favorite-places").addEventListener("click", event => {
+    const selectButton = event.target.closest("[data-favorite-index]");
+    const removeButton = event.target.closest("[data-remove-favorite]");
+    if (selectButton) {
+      const place = readFavorites()[Number(selectButton.dataset.favoriteIndex)];
+      if (place) {
+        setLocation(place);
+        document.getElementById("map-section").scrollIntoView({ behavior: "smooth" });
+      }
+    }
+    if (removeButton) {
+      const index = Number(removeButton.dataset.removeFavorite);
+      const favorites = readFavorites();
+      favorites.splice(index, 1);
+      try {
+        localStorage.setItem(FAVORITES_KEY, JSON.stringify(favorites));
+        renderFavorites();
+        document.getElementById("map-status").textContent = "تم حذف الموقع من المفضلة.";
+      } catch {
+        document.getElementById("map-status").textContent = "تعذر تحديث قائمة المواقع المحفوظة.";
+      }
+    }
+  });
 }
 
 function initMap() {
@@ -306,6 +385,7 @@ document.getElementById("news-query").addEventListener("keydown", event => { if 
 updateClocks();
 setInterval(updateClocks, 1000);
 initDateTools();
+initFavorites();
 initMap();
 fetchWeather(DEFAULT_LOCATION.latitude, DEFAULT_LOCATION.longitude, DEFAULT_LOCATION.name);
 convertCurrency();
