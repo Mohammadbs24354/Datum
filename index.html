@@ -24,6 +24,7 @@
         <a class="nav-link" href="#map-section"><span>◎</span> الخريطة</a>
         <a class="nav-link" href="#currency"><span>⇄</span> العملات</a>
         <a class="nav-link" href="#world-news"><span>▤</span> أخبار العالم</a>
+        <a class="nav-link" href="#calendar"><span>▣</span> التقويم والعطلات</a>
         <a class="nav-link" href="#date-tools"><span>▦</span> أدوات التاريخ</a>
       </nav>
       <div class="sidebar-bottom">
@@ -42,6 +43,7 @@
           <label><input type="checkbox" data-section-toggle="map-section" checked> الخريطة والأماكن المفضلة</label>
           <label><input type="checkbox" data-section-toggle="currency" checked> محول العملات</label>
           <label><input type="checkbox" data-section-toggle="world-news" checked> أخبار العالم</label>
+          <label><input type="checkbox" data-section-toggle="calendar" checked> التقويم والعطلات</label>
           <label><input type="checkbox" data-section-toggle="date-tools" checked> أدوات التاريخ</label>
         </div>
         <div class="customizer-footer"><button type="button" class="reset-layout" id="reset-layout">استعادة الكل</button><button type="submit" class="save-layout" id="save-layout">حفظ التخصيص</button></div>
@@ -123,6 +125,19 @@
         <div class="news-toolbar"><div class="search-control news-search"><input id="news-query" type="search" placeholder="ابحث عن موضوع، دولة أو حدث…" value="world"><button id="news-search-button" type="button">بحث</button></div><button class="secondary-button" id="news-refresh" type="button">↻ تحديث الأخبار</button></div>
         <div id="news-list" class="news-grid"><article class="news-placeholder">جارٍ تحميل الأخبار…</article></div>
         <p id="news-status" class="status-message" role="status">تُعرض عناوين وروابط خارجية؛ تحقق من المصدر الأصلي للتفاصيل.</p>
+      </section>
+
+      <section class="section-block" id="calendar">
+        <div class="section-heading"><div><p class="eyebrow">مناسبات حول العالم</p><h2>التقويم والعطلات الرسمية</h2></div><span class="section-note">اختر الدولة والسنة</span></div>
+        <div class="holiday-panel">
+          <div class="holiday-controls">
+            <div><label for="holiday-country">الدولة</label><select id="holiday-country"><option value="DE" selected>ألمانيا</option><option value="EG">مصر</option><option value="GB">المملكة المتحدة</option><option value="US">الولايات المتحدة</option><option value="FR">فرنسا</option><option value="AE">الإمارات</option><option value="SA">السعودية</option><option value="TR">تركيا</option><option value="JP">اليابان</option><option value="CA">كندا</option></select></div>
+            <div><label for="holiday-year">السنة</label><select id="holiday-year"><option>2026</option><option>2027</option><option>2028</option></select></div>
+            <button class="secondary-button" id="holiday-load" type="button">عرض العطلات</button>
+          </div>
+          <div id="holiday-list" class="holiday-list"><p class="muted">جارٍ تحميل العطلات الرسمية…</p></div>
+          <p id="holiday-status" class="status-message" role="status"></p>
+        </div>
       </section>
 
       <section class="section-block date-section" id="date-tools">
