@@ -381,6 +381,38 @@ function initCustomizer() {
   });
 }
 
+const countryNames = { DE: "ألمانيا", EG: "مصر", GB: "المملكة المتحدة", US: "الولايات المتحدة", FR: "فرنسا", AE: "الإمارات", SA: "السعودية", TR: "تركيا", JP: "اليابان", CA: "كندا" };
+async function loadHolidays() {
+  const country = document.getElementById("holiday-country").value;
+  const year = document.getElementById("holiday-year").value;
+  const list = document.getElementById("holiday-list");
+  const status = document.getElementById("holiday-status");
+  list.innerHTML = '<p class="muted">جارٍ تحميل العطلات الرسمية…</p>';
+  status.textContent = "";
+  try {
+    const response = await fetch(`https://date.nager.at/api/v3/PublicHolidays/${encodeURIComponent(year)}/${encodeURIComponent(country)}`);
+    if (!response.ok) throw new Error("لم تتوفر بيانات العطلات لهذه الدولة والسنة.");
+    const holidays = await response.json();
+    if (!Array.isArray(holidays) || holidays.length === 0) {
+      list.innerHTML = '<p class="muted">لا توجد عطلات مسجلة في هذه الفترة.</p>';
+      status.textContent = "لا توجد نتائج.";
+      return;
+    }
+    list.innerHTML = holidays.map(holiday => {
+      const date = new Date(holiday.date + "T12:00:00");
+      const formatted = new Intl.DateTimeFormat("ar", { weekday: "long", day: "numeric", month: "long" }).format(date);
+      const localName = String(holiday.localName || holiday.name || "عطلة رسمية").replace(/[&<>"]/g, char => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[char]);
+      const englishName = String(holiday.name || "").replace(/[&<>"]/g, "");
+      const types = Array.isArray(holiday.types) ? holiday.types.join(" · ") : "";
+      return `<article class="holiday-item"><div class="holiday-date"><strong>${date.getDate()}</strong><span>${new Intl.DateTimeFormat("ar", { month: "short" }).format(date)}</span></div><div class="holiday-description"><b>${localName}</b><span>${englishName}</span></div><small>${formatted} · ${types}</small></article>`;
+    }).join("");
+    status.textContent = `تم العثور على ${holidays.length} مناسبة رسمية في ${countryNames[country]} لعام ${year}.`;
+  } catch (error) {
+    list.innerHTML = '<p class="muted">تعذر تحميل بيانات العطلات حالياً.</p>';
+    status.textContent = error.message || "حدث خطأ أثناء تحميل التقويم.";
+  }
+}
+
 function initDateTools() {
   const today = new Date();
   const localToday = new Date(today.getTime() - today.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
@@ -439,6 +471,9 @@ document.getElementById("swap-currencies").addEventListener("click", () => {
 document.getElementById("news-search-button").addEventListener("click", loadWorldNews);
 document.getElementById("news-refresh").addEventListener("click", loadWorldNews);
 document.getElementById("news-query").addEventListener("keydown", event => { if (event.key === "Enter") loadWorldNews(); });
+document.getElementById("holiday-load").addEventListener("click", loadHolidays);
+document.getElementById("holiday-country").addEventListener("change", loadHolidays);
+document.getElementById("holiday-year").addEventListener("change", loadHolidays);
 
 updateClocks();
 setInterval(updateClocks, 1000);
@@ -449,3 +484,4 @@ initMap();
 fetchWeather(DEFAULT_LOCATION.latitude, DEFAULT_LOCATION.longitude, DEFAULT_LOCATION.name);
 convertCurrency();
 loadWorldNews();
+loadHolidays();
