@@ -415,6 +415,11 @@ async function loadHolidays() {
 
 function initDateTools() {
   const today = new Date();
+  const holidayYearSelect = document.getElementById("holiday-year");
+  holidayYearSelect.innerHTML = [0, 1, 2].map(offset => {
+    const year = today.getFullYear() + offset;
+    return `<option value="${year}">${year}</option>`;
+  }).join("");
   const localToday = new Date(today.getTime() - today.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
   document.getElementById("date-picker").value = localToday;
   document.getElementById("date-start").value = localToday;
