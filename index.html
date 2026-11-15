@@ -33,12 +33,27 @@
       </div>
     </aside>
 
+    <dialog class="customizer-dialog" id="customizer-dialog" aria-labelledby="customizer-title">
+      <form method="dialog" class="customizer-form">
+        <div class="customizer-header"><div><p class="eyebrow">مساحة عملك</p><h2 id="customizer-title">تخصيص لوحة Datum</h2><p>اختر الأقسام التي تريد ظهورها في لوحتك. سيتم حفظ اختيارك على هذا الجهاز.</p></div><button class="dialog-close" value="cancel" aria-label="إغلاق">×</button></div>
+        <div class="customizer-options">
+          <label><input type="checkbox" data-section-toggle="world-clock" checked> الساعة العالمية</label>
+          <label><input type="checkbox" data-section-toggle="weather" checked> الطقس والتوقعات</label>
+          <label><input type="checkbox" data-section-toggle="map-section" checked> الخريطة والأماكن المفضلة</label>
+          <label><input type="checkbox" data-section-toggle="currency" checked> محول العملات</label>
+          <label><input type="checkbox" data-section-toggle="world-news" checked> أخبار العالم</label>
+          <label><input type="checkbox" data-section-toggle="date-tools" checked> أدوات التاريخ</label>
+        </div>
+        <div class="customizer-footer"><button type="button" class="reset-layout" id="reset-layout">استعادة الكل</button><button type="submit" class="save-layout" id="save-layout">حفظ التخصيص</button></div>
+        <p id="customizer-status" class="status-message" role="status"></p>
+      </form>
+    </dialog>
     <main class="main-content">
       <header class="topbar">
         <div><span class="eyebrow">لوحة التحكم</span><h1>لوحة العالم</h1></div>
         <div class="topbar-actions">
           <span class="today-label" id="today-label">—</span>
-          <button class="icon-button" id="refresh-button" type="button" title="تحديث البيانات" aria-label="تحديث البيانات">↻</button>
+          <button class="customize-button" id="open-customizer" type="button">⚙ تخصيص اللوحة</button><button class="icon-button" id="refresh-button" type="button" title="تحديث البيانات" aria-label="تحديث البيانات">↻</button>
           <div class="avatar">D</div>
         </div>
       </header>
