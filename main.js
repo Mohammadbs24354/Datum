@@ -70,7 +70,7 @@ async function fetchWeather(latitude, longitude, placeName) {
     document.getElementById("humidity").textContent = current.relative_humidity_2m + "%";
     document.getElementById("wind-speed").textContent = Math.round(current.wind_speed_10m) + " كم/س";
     document.getElementById("rain-chance").textContent = (data.daily.precipitation_probability_max?.[0] ?? "—") + "%";
-    const solarTime = value => value ? new Intl.DateTimeFormat("ar", { timeZone: data.timezone, hour: "2-digit", minute: "2-digit", hour12: false }).format(new Date(value)) : "—";
+    const solarTime = value => value ? value.slice(11, 16) : "—";
     document.getElementById("sunrise-time").textContent = solarTime(data.daily.sunrise?.[0]);
     document.getElementById("sunset-time").textContent = solarTime(data.daily.sunset?.[0]);
     document.getElementById("uv-index").textContent = data.daily.uv_index_max?.[0] ?? "—";
