@@ -12,6 +12,7 @@ Datum is a responsive Arabic world dashboard built with vanilla HTML, CSS and Ja
 - Personalize the dashboard by showing or hiding sections; preferences persist locally.
 - Currency converter for EUR, USD, GBP, AED, EGP, SAR, TRY, CHF, JPY and CAD.
 - Global news headlines with topic search and links to original publishers.
+- Public holidays calendar by country and year (Nager.Date API).
 - Date explorer and date-difference calculator.
 - Responsive layout for desktop and mobile.
 
@@ -20,6 +21,7 @@ Datum is a responsive Arabic world dashboard built with vanilla HTML, CSS and Ja
 - Weather, forecast and geocoding: [Open-Meteo](https://open-meteo.com/).
 - Currency reference rates: [Frankfurter](https://www.frankfurter.app/).
 - News discovery: [GDELT Project](https://www.gdeltproject.org/).
+- Public holidays: [Nager.Date](https://date.nager.at/).
 - Map tiles: [OpenStreetMap](https://www.openstreetmap.org/copyright).
 - Map library: [Leaflet](https://leafletjs.com/).
 - Reverse geocoding: [Nominatim](https://nominatim.org/).
