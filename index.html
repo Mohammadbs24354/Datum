@@ -1,43 +1,99 @@
 <!DOCTYPE html>
-<html lang="ar">
-
+<html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title></title>
-    <link rel="stylesheet" href="main.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#101827">
+  <meta name="description" content="Datum — لوحة معلومات عالمية للوقت والطقس والخرائط والتاريخ.">
+  <title>Datum — لوحة العالم</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+  <link rel="stylesheet" href="main.css">
 </head>
-
 <body>
-    <div class="container">
-        <table id="selectionTable">
-            <tr>
-                <td colspan="3">
-                    <select id="yearSelect1">
-                        <option value="" disabled selected>2025</option>
-                    </select>
-                </td>
-                <td colspan="3">
-                    <select id="yearSelect2">
-                        <option value="" disabled selected>2038</option>
-                    </select>
-                </td>
-            </tr>
-            <tr>
-            </tr>
-            <script>
-                document.write('<tr>');
-                for (let month = 1; month <= 12; month++) {
-                    document.write(`<td class="month">${month}</td>`);
-                    if (month % 6 === 0) document.write('</tr><tr>');
-                }
-                document.write('</tr>');
-            </script>
-        </table>
-        <input type="text" id="selectedDate">
-    </div>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <a class="brand" href="#overview"><span class="brand-mark">D</span><span><strong>Datum</strong><small>WORLD DASHBOARD</small></span></a>
+      <div class="side-label">مساحة العمل</div>
+      <nav class="main-nav" aria-label="التنقل الرئيسي">
+        <a class="nav-link active" href="#overview"><span>⌂</span> نظرة عامة</a>
+        <a class="nav-link" href="#world-clock"><span>◷</span> الساعة العالمية</a>
+        <a class="nav-link" href="#weather"><span>☼</span> الطقس</a>
+        <a class="nav-link" href="#map-section"><span>◎</span> الخريطة</a>
+        <a class="nav-link" href="#date-tools"><span>▦</span> أدوات التاريخ</a>
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="live-indicator"><i></i> الخدمات متصلة</div>
+        <p>بيانات الطقس من Open-Meteo<br>والخرائط من OpenStreetMap.</p>
+        <span class="version">DATUM · الإصدار 2.0</span>
+      </div>
+    </aside>
 
-    <script src="main.js"></script>
+    <main class="main-content">
+      <header class="topbar">
+        <div><span class="eyebrow">لوحة التحكم</span><h1>لوحة العالم</h1></div>
+        <div class="topbar-actions">
+          <span class="today-label" id="today-label">—</span>
+          <button class="icon-button" id="refresh-button" type="button" title="تحديث البيانات" aria-label="تحديث البيانات">↻</button>
+          <div class="avatar">D</div>
+        </div>
+      </header>
+
+      <section class="welcome-row" id="overview">
+        <div><p class="eyebrow">مرحباً بك في DATUM</p><h2>العالم بين يديك.</h2><p class="muted">تابع الوقت والطقس واستكشف الأماكن من لوحة واحدة.</p></div>
+        <div class="local-time-card"><span>الوقت المحلي · برلين</span><strong id="local-clock">--:--:--</strong><small id="local-date">جارٍ تحميل التاريخ…</small></div>
+      </section>
+
+      <section class="stats-grid" aria-label="معلومات سريعة">
+        <article class="stat-card"><div class="stat-icon purple">◷</div><span>المناطق الزمنية</span><strong>6 <small>مدن</small></strong><p>تحديث مباشر كل ثانية</p></article>
+        <article class="stat-card"><div class="stat-icon orange">☼</div><span>حالة الطقس</span><strong id="overview-temp">—</strong><p id="overview-weather">بانتظار بيانات الطقس</p></article>
+        <article class="stat-card"><div class="stat-icon blue">◎</div><span>موقع الخريطة</span><strong id="overview-location">برلين</strong><p>يمكنك البحث عن أي مدينة</p></article>
+        <article class="stat-card"><div class="stat-icon green">▦</div><span>التاريخ اليوم</span><strong id="overview-day">—</strong><p id="overview-month">—</p></article>
+      </section>
+
+      <section class="section-block" id="world-clock">
+        <div class="section-heading"><div><p class="eyebrow">الوقت حول العالم</p><h2>الساعة العالمية</h2></div><span class="section-note">توقيت مباشر حسب المنطقة الزمنية</span></div>
+        <div class="clock-grid" id="clock-grid">
+          <article class="clock-card"><span>برلين · ألمانيا</span><strong>--:--:--</strong><small>جارٍ التحميل</small></article>
+        </div>
+      </section>
+
+      <section class="section-block" id="weather">
+        <div class="section-heading"><div><p class="eyebrow">حالة الجو الآن</p><h2>الطقس والتوقعات</h2></div><span class="section-note">مصدر البيانات: Open-Meteo</span></div>
+        <div class="weather-layout">
+          <article class="weather-main-card">
+            <div class="weather-card-top"><div><span class="weather-location-label">الطقس في</span><h3 id="weather-city">برلين، ألمانيا</h3></div><span class="weather-symbol" id="weather-symbol">☀</span></div>
+            <div class="temperature-line"><strong id="current-temp">--°</strong><div><b id="weather-description">جارٍ تحميل الطقس…</b><span id="feels-like">الإحساس: —</span></div></div>
+            <div class="weather-details"><div><span>الرطوبة</span><b id="humidity">—</b></div><div><span>الرياح</span><b id="wind-speed">—</b></div><div><span>احتمال المطر</span><b id="rain-chance">—</b></div></div>
+          </article>
+          <article class="forecast-card"><div class="forecast-heading"><h3>توقعات الأيام القادمة</h3><span>5 أيام</span></div><div id="forecast-list" class="forecast-list"><p class="muted">جارٍ تحميل التوقعات…</p></div></article>
+        </div>
+        <div class="inline-search weather-search"><label for="weather-search-input">ابحث عن مدينة لعرض طقسها</label><div class="search-control"><input id="weather-search-input" type="search" placeholder="مثال: Cairo, Egypt" autocomplete="off"><button id="weather-search-button" type="button">عرض الطقس</button></div><p id="weather-status" class="status-message" role="status"></p></div>
+      </section>
+
+      <section class="section-block" id="map-section">
+        <div class="section-heading"><div><p class="eyebrow">استكشف الكوكب</p><h2>الخريطة التفاعلية</h2></div><span class="section-note">اضغط على الخريطة لاختيار موقع</span></div>
+        <div class="map-toolbar"><div class="search-control map-search"><input id="map-search-input" type="search" placeholder="ابحث عن مدينة أو دولة…" autocomplete="off"><button id="map-search-button" type="button">بحث على الخريطة</button></div><button class="secondary-button" id="locate-button" type="button">◎ موقعي الحالي</button></div>
+        <div id="map" class="map-canvas" aria-label="خريطة تفاعلية للعالم"></div>
+        <div class="map-footer"><div><span class="map-pin"></span><span id="selected-place">الموقع المحدد: برلين، ألمانيا</span></div><span id="coordinates">52.5200° N, 13.4050° E</span></div>
+        <p id="map-status" class="status-message" role="status"></p>
+      </section>
+
+      <section class="section-block date-section" id="date-tools">
+        <div class="section-heading"><div><p class="eyebrow">التخطيط والتنظيم</p><h2>أدوات التاريخ</h2></div><span class="section-note">اختر تاريخاً واحسب المدة</span></div>
+        <div class="date-tools-grid">
+          <article class="tool-card"><div class="tool-card-title"><span class="tool-icon">▦</span><div><h3>مستكشف التاريخ</h3><p>اعرض اليوم واسم الشهر للتاريخ الذي تختاره.</p></div></div><label for="date-picker">اختر التاريخ</label><input id="date-picker" type="date"><div class="date-result" id="date-result">اختر تاريخاً للبدء</div></article>
+          <article class="tool-card"><div class="tool-card-title"><span class="tool-icon">⌛</span><div><h3>حاسبة الأيام</h3><p>احسب عدد الأيام بين تاريخين.</p></div></div><div class="date-range-inputs"><div><label for="date-start">من تاريخ</label><input id="date-start" type="date"></div><div><label for="date-end">إلى تاريخ</label><input id="date-end" type="date"></div></div><div class="date-result" id="days-result">اختر تاريخ البداية والنهاية</div></article>
+        </div>
+      </section>
+
+      <footer class="footer"><span>© <span id="year-now"></span> Datum. صُمم لاستكشاف العالم.</span><span>الطقس: Open-Meteo · الخرائط: © OpenStreetMap</span></footer>
+    </main>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script src="main.js"></script>
 </body>
-
 </html>
