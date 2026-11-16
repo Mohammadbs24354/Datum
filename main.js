@@ -2,6 +2,8 @@ const DEFAULT_LOCATION = { name: "برلين، ألمانيا", latitude: 52.52,
 let activeLocation = { ...DEFAULT_LOCATION };
 let map;
 let marker;
+let radarLayer = null;
+let weatherRequestId = 0;
 const FAVORITES_KEY = "datum-favorite-places-v1";
 
 const cities = [
@@ -47,6 +49,7 @@ function updateClocks() {
 }
 
 async function fetchWeather(latitude, longitude, placeName) {
+  const requestId = ++weatherRequestId;
   const status = document.getElementById("weather-status");
   status.textContent = "جارٍ جلب بيانات الطقس…";
   try {
@@ -60,6 +63,7 @@ async function fetchWeather(latitude, longitude, placeName) {
     const response = await fetch(url);
     if (!response.ok) throw new Error("تعذر الاتصال بخدمة الطقس.");
     const data = await response.json();
+    if (requestId !== weatherRequestId) return;
     const current = data.current;
     const [description, symbol] = weatherInfo(current.weather_code);
     document.getElementById("weather-city").textContent = placeName;
@@ -84,6 +88,7 @@ async function fetchWeather(latitude, longitude, placeName) {
     }).join("");
     status.textContent = "تم تحديث الطقس بنجاح.";
   } catch (error) {
+    if (requestId !== weatherRequestId) return;
     status.textContent = error.message || "حدث خطأ أثناء تحميل الطقس.";
     document.getElementById("weather-description").textContent = "البيانات غير متاحة حالياً";
   }
@@ -206,15 +211,66 @@ function initFavorites() {
   });
 }
 
+async function toggleRadarLayer() {
+  const button = document.getElementById("radar-toggle");
+  const status = document.getElementById("map-status");
+  if (radarLayer && map.hasLayer(radarLayer)) {
+    map.removeLayer(radarLayer);
+    button.setAttribute("aria-pressed", "false");
+    button.textContent = "☂ رادار الأمطار";
+    status.textContent = "تم إخفاء طبقة رادار الأمطار.";
+    return;
+  }
+  button.disabled = true;
+  button.textContent = "جارٍ تحميل الرادار…";
+  status.textContent = "جارٍ جلب أحدث صور رادار الأمطار…";
+  try {
+    const response = await fetch("https://api.rainviewer.com/public/weather-maps.json");
+    if (!response.ok) throw new Error("خدمة رادار الأمطار غير متاحة حالياً.");
+    const data = await response.json();
+    const frames = data.radar && Array.isArray(data.radar.past) ? data.radar.past : [];
+    const latest = frames[frames.length - 1];
+    if (!data.host || !latest || !latest.path) throw new Error("لا توجد صورة رادار متاحة حالياً.");
+    if (radarLayer) map.removeLayer(radarLayer);
+    radarLayer = L.tileLayer(data.host + latest.path + "/256/{z}/{x}/{y}/2/1_1.png", {
+      tileSize: 256, opacity: 0.72, maxNativeZoom: 7, maxZoom: 19,
+      attribution: '<a href="https://www.rainviewer.com/" target="_blank" rel="noopener">Weather radar by RainViewer</a>'
+    }).addTo(map);
+    button.setAttribute("aria-pressed", "true");
+    button.textContent = "إخفاء رادار الأمطار";
+    const frameTime = new Date(latest.time * 1000);
+    status.textContent = "تُعرض أحدث صورة رادار متاحة: " + new Intl.DateTimeFormat("ar", { dateStyle: "short", timeStyle: "short" }).format(frameTime) + ".";
+  } catch (error) {
+    status.textContent = error.message || "تعذر تحميل رادار الأمطار.";
+    button.textContent = "☂ رادار الأمطار";
+  } finally {
+    button.disabled = false;
+  }
+}
+
 function initMap() {
   if (!window.L) {
     document.getElementById("map-status").textContent = "تعذر تحميل مكتبة الخريطة. تحقق من اتصال الإنترنت.";
     return;
   }
   map = L.map("map").setView([DEFAULT_LOCATION.latitude, DEFAULT_LOCATION.longitude], 4);
-  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-    maxZoom: 19, attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>'
-  }).addTo(map);
+  const baseLayers = {
+    street: L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      maxZoom: 19, attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>'
+    }),
+    satellite: L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}", {
+      maxZoom: 19, attribution: 'Tiles &copy; Esri'
+    }),
+    terrain: L.tileLayer("https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png", {
+      maxZoom: 17, attribution: 'Map data: &copy; OpenStreetMap contributors, SRTM | Map style: &copy; OpenTopoMap'
+    })
+  };
+  baseLayers.street.addTo(map);
+  document.getElementById("map-style-select").addEventListener("change", event => {
+    Object.values(baseLayers).forEach(layer => { if (map.hasLayer(layer)) map.removeLayer(layer); });
+    baseLayers[event.target.value].addTo(map);
+  });
+  document.getElementById("radar-toggle").addEventListener("click", toggleRadarLayer);
   marker = L.marker([DEFAULT_LOCATION.latitude, DEFAULT_LOCATION.longitude]).addTo(map).bindPopup(DEFAULT_LOCATION.name);
   map.on("click", async event => {
     const { lat, lng } = event.latlng;
