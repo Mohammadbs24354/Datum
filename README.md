@@ -28,11 +28,25 @@ Datum is a responsive Arabic world dashboard built with vanilla HTML, CSS and Ja
 - Map library: [Leaflet](https://leafletjs.com/).
 - Reverse geocoding: [Nominatim](https://nominatim.org/).
 
+## Automated browser tests
+
+The repository includes Playwright end-to-end tests and a GitHub Actions workflow. The workflow runs Chromium tests on pushes and pull requests targeting `main` or `master`, and can also be started manually from the Actions tab.
+
+Run the same checks locally:
+
+```bash
+npm install
+npx playwright install chromium
+npm test
+```
+
+External data APIs and map tiles are mocked in the test suite so checks remain deterministic and do not depend on provider availability. The Leaflet library is loaded from the pinned npm package during tests.
+
 ## Run locally
 
 Open `index.html` in a modern browser. For best results, use a local development server (for example, VS Code Live Server), because browser geolocation requires a secure context (HTTPS or localhost).
 
-No build step or package installation is required. An internet connection is needed for live data and map tiles.
+The dashboard itself has no build step. Install the optional development dependencies only when running the automated tests. An internet connection is needed for live data and map tiles.
 
 ## Important notes
 
