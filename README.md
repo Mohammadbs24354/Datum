@@ -6,7 +6,8 @@ Datum is a responsive Arabic world dashboard built with vanilla HTML, CSS and Ja
 
 - Live world clocks for Berlin, London, New York, Dubai, Tokyo and Sydney.
 - Current weather, five-day forecast, sunrise, sunset and daily maximum UV index.
-- Interactive world map powered by Leaflet and OpenStreetMap.
+- Interactive world map powered by Leaflet and OpenStreetMap, with street, satellite and terrain basemaps.
+- Optional precipitation radar overlay using the latest available RainViewer radar frame.
 - Search for cities, select a point on the map, or use browser geolocation.
 - Save up to 12 favorite places locally in the browser and revisit them later.
 - Personalize the dashboard by showing or hiding sections; preferences persist locally.
@@ -22,7 +23,8 @@ Datum is a responsive Arabic world dashboard built with vanilla HTML, CSS and Ja
 - Currency reference rates: [Frankfurter](https://www.frankfurter.app/).
 - News discovery: [GDELT Project](https://www.gdeltproject.org/).
 - Public holidays: [Nager.Date](https://date.nager.at/).
-- Map tiles: [OpenStreetMap](https://www.openstreetmap.org/copyright).
+- Map tiles: [OpenStreetMap](https://www.openstreetmap.org/copyright), [Esri World Imagery](https://www.esri.com/), and [OpenTopoMap](https://opentopomap.org/).
+- Precipitation radar: [RainViewer Weather Maps API](https://www.rainviewer.com/api/weather-maps-api.html). Its free API is intended for personal/educational use, has no uptime guarantee, and currently limits native radar zoom to level 7.
 - Map library: [Leaflet](https://leafletjs.com/).
 - Reverse geocoding: [Nominatim](https://nominatim.org/).
 
