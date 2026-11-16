@@ -1,0 +1,14 @@
+{
+  "name": "datum-world-dashboard",
+  "version": "2.1.0",
+  "private": true,
+  "description": "Arabic world dashboard with automated browser tests",
+  "scripts": {
+    "test": "playwright test",
+    "test:headed": "playwright test --headed"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.56.1",
+    "leaflet": "^1.9.4"
+  }
+}
