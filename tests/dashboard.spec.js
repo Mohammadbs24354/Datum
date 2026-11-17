@@ -117,3 +117,26 @@ test("supports the mobile dashboard layout", async ({ page }) => {
   await expect(page.locator("#map")).toBeVisible();
   await expect(page.locator("#open-customizer")).toBeVisible();
 });
+
+test("keeps the latest holiday selection when an older request finishes later", async ({ page }) => {
+  await page.route("https://date.nager.at/api/v3/PublicHolidays/**", async route => {
+    const url = route.request().url();
+    if (url.endsWith("/2026/DE")) {
+      await new Promise(resolve => setTimeout(resolve, 400));
+      await route.fulfill({ json: [{ date: "2026-01-01", localName: "نتيجة ألمانية قديمة", name: "Old German result", types: ["Public"] }] });
+      return;
+    }
+    if (url.endsWith("/2026/EG")) {
+      await route.fulfill({ json: [{ date: "2026-07-23", localName: "ثورة 23 يوليو", name: "July Revolution Day", types: ["Public"] }] });
+      return;
+    }
+    await route.continue();
+  });
+
+  await page.goto("/");
+  await page.locator("#holiday-country").selectOption("EG");
+  await expect(page.locator("#holiday-status")).toContainText("مصر");
+  await expect(page.locator("#holiday-list")).toContainText("ثورة 23 يوليو");
+  await page.waitForTimeout(500);
+  await expect(page.locator("#holiday-list")).not.toContainText("نتيجة ألمانية قديمة");
+});
