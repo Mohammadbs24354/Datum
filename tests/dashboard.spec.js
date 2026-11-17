@@ -159,3 +159,22 @@ test("keeps the newest news search when an earlier request finishes later", asyn
   await page.waitForTimeout(500);
   await expect(page.locator("#news-list")).not.toContainText("نتيجة بحث قديمة");
 });
+
+test("renders untrusted news fields as text instead of executable markup", async ({ page }) => {
+  await page.route("https://api.gdeltproject.org/api/v2/doc/doc**", route =>
+    route.fulfill({
+      json: {
+        articles: [{
+          title: "<img src=x onerror=alert(1)>",
+          url: "https://example.com/article",
+          domain: "example.com",
+          seendate: '20261117T120000Z<script>alert(1)</script>'
+        }]
+      }
+    })
+  );
+
+  await page.goto("/");
+  await expect(page.locator("#news-list")).toContainText("<img src=x onerror=alert(1)>");
+  await expect(page.locator("#news-list img, #news-list script")).toHaveCount(0);
+});
