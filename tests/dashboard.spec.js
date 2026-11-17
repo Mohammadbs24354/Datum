@@ -140,3 +140,22 @@ test("keeps the latest holiday selection when an older request finishes later", 
   await page.waitForTimeout(500);
   await expect(page.locator("#holiday-list")).not.toContainText("نتيجة ألمانية قديمة");
 });
+
+test("keeps the newest news search when an earlier request finishes later", async ({ page }) => {
+  await page.route("https://api.gdeltproject.org/api/v2/doc/doc**", async route => {
+    const url = new URL(route.request().url());
+    if (url.searchParams.get("query")?.startsWith("world ")) {
+      await new Promise(resolve => setTimeout(resolve, 400));
+      await route.fulfill({ json: { articles: [{ title: "نتيجة بحث قديمة", url: "https://example.com/old", domain: "example.com" }] } });
+      return;
+    }
+    await route.fulfill({ json: { articles: [{ title: "النتيجة الأحدث", url: "https://example.com/latest", domain: "example.com" }] } });
+  });
+
+  await page.goto("/");
+  await page.locator("#news-query").fill("latest topic");
+  await page.locator("#news-search-button").click();
+  await expect(page.locator("#news-list")).toContainText("النتيجة الأحدث");
+  await page.waitForTimeout(500);
+  await expect(page.locator("#news-list")).not.toContainText("نتيجة بحث قديمة");
+});
