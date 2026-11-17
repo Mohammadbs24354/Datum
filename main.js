@@ -5,6 +5,7 @@ let marker;
 let radarLayer = null;
 let weatherRequestId = 0;
 const FAVORITES_KEY = "datum-favorite-places-v1";
+let holidayRequestId = 0;
 
 const cities = [
   { name: "برلين · ألمانيا", zone: "Europe/Berlin" },
@@ -439,6 +440,7 @@ function initCustomizer() {
 
 const countryNames = { DE: "ألمانيا", EG: "مصر", GB: "المملكة المتحدة", US: "الولايات المتحدة", FR: "فرنسا", AE: "الإمارات", SA: "السعودية", TR: "تركيا", JP: "اليابان", CA: "كندا" };
 async function loadHolidays() {
+  const requestId = ++holidayRequestId;
   const country = document.getElementById("holiday-country").value;
   const year = document.getElementById("holiday-year").value;
   const list = document.getElementById("holiday-list");
@@ -449,6 +451,7 @@ async function loadHolidays() {
     const response = await fetch(`https://date.nager.at/api/v3/PublicHolidays/${encodeURIComponent(year)}/${encodeURIComponent(country)}`);
     if (!response.ok) throw new Error("لم تتوفر بيانات العطلات لهذه الدولة والسنة.");
     const holidays = await response.json();
+    if (requestId !== holidayRequestId) return;
     if (!Array.isArray(holidays) || holidays.length === 0) {
       list.innerHTML = '<p class="muted">لا توجد عطلات مسجلة في هذه الفترة.</p>';
       status.textContent = "لا توجد نتائج.";
@@ -464,6 +467,7 @@ async function loadHolidays() {
     }).join("");
     status.textContent = `تم العثور على ${holidays.length} مناسبة رسمية في ${countryNames[country]} لعام ${year}.`;
   } catch (error) {
+    if (requestId !== holidayRequestId) return;
     list.innerHTML = '<p class="muted">تعذر تحميل بيانات العطلات حالياً.</p>';
     status.textContent = error.message || "حدث خطأ أثناء تحميل التقويم.";
   }
