@@ -302,6 +302,7 @@ async function searchLocation(inputId, statusId, moveMap) {
 
 const currencyNames = { EUR: "اليورو", USD: "الدولار الأمريكي", GBP: "الجنيه الإسترليني", AED: "الدرهم الإماراتي", EGP: "الجنيه المصري", SAR: "الريال السعودي", TRY: "الليرة التركية", CHF: "الفرنك السويسري", JPY: "الين الياباني", CAD: "الدولار الكندي" };
 let currencyRequestId = 0;
+let newsRequestId = 0;
 async function convertCurrency() {
   const requestId = ++currencyRequestId;
   const amount = Number(document.getElementById("amount-input").value);
@@ -339,6 +340,7 @@ async function convertCurrency() {
 }
 
 async function loadWorldNews() {
+  const requestId = ++newsRequestId;
   const query = document.getElementById("news-query").value.trim() || "world";
   const list = document.getElementById("news-list");
   const status = document.getElementById("news-status");
@@ -356,6 +358,7 @@ async function loadWorldNews() {
     const response = await fetch(url);
     if (!response.ok) throw new Error("تعذر الاتصال بخدمة الأخبار.");
     const data = await response.json();
+    if (requestId !== newsRequestId) return;
     const articles = (data.articles || []).filter(article => article.title && article.url).slice(0, 10);
     if (!articles.length) {
       list.innerHTML = '<article class="news-placeholder">لم نعثر على نتائج. جرّب موضوعاً أو دولة أخرى.</article>';
@@ -375,6 +378,7 @@ async function loadWorldNews() {
     }).join("");
     status.textContent = `تم العثور على ${articles.length} عناوين. الأخبار وروابطها من مصادر خارجية.`;
   } catch (error) {
+    if (requestId !== newsRequestId) return;
     list.innerHTML = '<article class="news-placeholder">تعذر تحميل الأخبار الآن. يمكنك المحاولة مرة أخرى لاحقاً.</article>';
     status.textContent = error.message || "حدث خطأ أثناء تحميل الأخبار.";
   }
