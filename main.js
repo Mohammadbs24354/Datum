@@ -369,12 +369,13 @@ async function loadWorldNews() {
       const title = String(article.title).replace(/[&<>"]/g, char => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[char]);
       const domain = String(article.domain || "مصدر إخباري").replace(/[&<>"]/g, "");
       const date = article.seendate ? article.seendate.replace(/(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})Z/, "$1-$2-$3 $4:$5") : "";
+      const safeDate = date.replace(/[&<>"]/g, char => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[char]);
       let safeUrl;
       try {
         safeUrl = new URL(article.url);
         if (safeUrl.protocol !== "https:" && safeUrl.protocol !== "http:") return "";
       } catch { return ""; }
-      return `<article class="news-card"><h3>${title}</h3><div class="news-meta"><span>${domain} · ${date}</span><a href="${safeUrl.href}" target="_blank" rel="noopener noreferrer">قراءة الخبر ↗</a></div></article>`;
+      return `<article class="news-card"><h3>${title}</h3><div class="news-meta"><span>${domain} · ${safeDate}</span><a href="${safeUrl.href}" target="_blank" rel="noopener noreferrer">قراءة الخبر ↗</a></div></article>`;
     }).join("");
     status.textContent = `تم العثور على ${articles.length} عناوين. الأخبار وروابطها من مصادر خارجية.`;
   } catch (error) {
