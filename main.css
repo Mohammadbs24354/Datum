@@ -24,3 +24,6 @@
 #radar-toggle[aria-pressed="true"]{background:var(--primary-soft);border-color:#d8d3ff;color:var(--primary)}
 #radar-toggle:disabled{opacity:.6;cursor:wait}
 @media(max-width:760px){.map-actions{grid-template-columns:1fr 1fr}.map-style-select{width:100%;min-width:0}}
+
+/* Keep hidden sections and navigation items hidden despite component display rules. */
+.nav-link[hidden], .section-block[hidden] { display: none !important; }
