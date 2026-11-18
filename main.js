@@ -4,7 +4,7 @@ let map;
 let marker;
 let radarLayer = null;
 let weatherRequestId = 0;
-let locationSearchRequestId = 0;
+let locationSelectionRequestId = 0;
 const FAVORITES_KEY = "datum-favorite-places-v1";
 let holidayRequestId = 0;
 
@@ -275,9 +275,11 @@ function initMap() {
   document.getElementById("radar-toggle").addEventListener("click", toggleRadarLayer);
   marker = L.marker([DEFAULT_LOCATION.latitude, DEFAULT_LOCATION.longitude]).addTo(map).bindPopup(DEFAULT_LOCATION.name);
   map.on("click", async event => {
+    const requestId = ++locationSelectionRequestId;
     const { lat, lng } = event.latlng;
     document.getElementById("map-status").textContent = "جارٍ تحديد اسم المكان…";
     const name = await reverseGeocode(lat, lng);
+    if (requestId !== locationSelectionRequestId) return;
     setLocation({ name, latitude: lat, longitude: lng }, false);
     marker.setLatLng([lat, lng]).bindPopup(name).openPopup();
     document.getElementById("map-status").textContent = "تم اختيار الموقع وتحديث الطقس.";
@@ -285,7 +287,7 @@ function initMap() {
 }
 
 async function searchLocation(inputId, statusId, moveMap) {
-  const requestId = ++locationSearchRequestId;
+  const requestId = ++locationSelectionRequestId;
   const input = document.getElementById(inputId);
   const status = document.getElementById(statusId);
   const query = input.value.trim();
@@ -293,7 +295,7 @@ async function searchLocation(inputId, statusId, moveMap) {
   status.textContent = "جارٍ البحث…";
   try {
     const place = await geocode(query);
-    if (requestId !== locationSearchRequestId) return;
+    if (requestId !== locationSelectionRequestId) return;
     setLocation(place, moveMap);
     if (moveMap && map) map.setView([place.latitude, place.longitude], 9);
     status.textContent = "تم العثور على " + place.name;
