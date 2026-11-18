@@ -47,7 +47,7 @@ test.beforeEach(async ({ page }) => {
     route.fulfill({ json: { name: "القاهرة", address: { city: "القاهرة" } } })
   );
   await page.route("https://api.frankfurter.app/**", route =>
-    route.fulfill({ json: { amount: 100, base: "EUR", date: "2026-11-13", rates: { USD: 110 } } })
+    route.fulfill({ json: { amount: 100, base: "EUR", date: "2026-11-13", rates: { USD: 110, EUR: 0.91 } } })
   );
   await page.route("https://api.gdeltproject.org/**", route =>
     route.fulfill({ json: { articles: [] } })
@@ -121,12 +121,12 @@ test("supports the mobile dashboard layout", async ({ page }) => {
 test("keeps the latest holiday selection when an older request finishes later", async ({ page }) => {
   await page.route("https://date.nager.at/api/v3/PublicHolidays/**", async route => {
     const url = route.request().url();
-    if (url.endsWith("/2026/DE")) {
+    if (url.endsWith(`/${year}/DE`)) {
       await new Promise(resolve => setTimeout(resolve, 400));
       await route.fulfill({ json: [{ date: "2026-01-01", localName: "نتيجة ألمانية قديمة", name: "Old German result", types: ["Public"] }] });
       return;
     }
-    if (url.endsWith("/2026/EG")) {
+    if (url.endsWith(`/${year}/EG`)) {
       await route.fulfill({ json: [{ date: "2026-07-23", localName: "ثورة 23 يوليو", name: "July Revolution Day", types: ["Public"] }] });
       return;
     }
@@ -134,6 +134,7 @@ test("keeps the latest holiday selection when an older request finishes later", 
   });
 
   await page.goto("/");
+  const year = await page.locator("#holiday-year").inputValue();
   await page.locator("#holiday-country").selectOption("EG");
   await expect(page.locator("#holiday-status")).toContainText("مصر");
   await expect(page.locator("#holiday-list")).toContainText("ثورة 23 يوليو");
@@ -223,4 +224,21 @@ test("shows a useful message when the currency provider is unavailable", async (
   await page.route("https://api.frankfurter.app/**", route => route.fulfill({ status: 503, body: "Unavailable" }));
   await page.goto("/");
   await expect(page.locator("#currency-status")).toContainText("غير متاحة");
+});
+
+test("updates the selected location when the user clicks the map", async ({ page }) => {
+  await page.goto("/");
+  await page.locator("#map").click({ position: { x: 180, y: 120 } });
+  await expect(page.locator("#selected-place")).toContainText("القاهرة");
+  await expect(page.locator("#map-status")).toContainText("تم اختيار الموقع");
+});
+
+test("shows a clear validation message for an unknown city", async ({ page }) => {
+  await page.route("https://geocoding-api.open-meteo.com/**", route =>
+    route.fulfill({ json: { results: [] } })
+  );
+  await page.goto("/");
+  await page.locator("#weather-search-input").fill("No such city");
+  await page.locator("#weather-search-button").click();
+  await expect(page.locator("#weather-status")).toContainText("لم نعثر على هذه المدينة");
 });
