@@ -119,6 +119,7 @@ test("supports the mobile dashboard layout", async ({ page }) => {
 });
 
 test("keeps the latest holiday selection when an older request finishes later", async ({ page }) => {
+  const year = new Date().getFullYear();
   await page.route("https://date.nager.at/api/v3/PublicHolidays/**", async route => {
     const url = route.request().url();
     if (url.endsWith(`/${year}/DE`)) {
@@ -134,7 +135,6 @@ test("keeps the latest holiday selection when an older request finishes later", 
   });
 
   await page.goto("/");
-  const year = await page.locator("#holiday-year").inputValue();
   await page.locator("#holiday-country").selectOption("EG");
   await expect(page.locator("#holiday-status")).toContainText("مصر");
   await expect(page.locator("#holiday-list")).toContainText("ثورة 23 يوليو");
@@ -185,7 +185,7 @@ test("searches for cities and updates the selected weather location", async ({ p
   await page.locator("#weather-search-input").fill("Cairo");
   await page.locator("#weather-search-button").click();
   await expect(page.locator("#weather-city")).toContainText("القاهرة");
-  await expect(page.locator("#weather-status")).toContainText("تم العثور على");
+  await expect(page.locator("#weather-status")).toContainText("تم تحديث الطقس بنجاح.");
 
   await page.locator("#map-search-input").fill("Berlin");
   await page.locator("#map-search-button").click();
