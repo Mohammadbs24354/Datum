@@ -178,3 +178,49 @@ test("renders untrusted news fields as text instead of executable markup", async
   await expect(page.locator("#news-list")).toContainText("<img src=x onerror=alert(1)>");
   await expect(page.locator("#news-list img, #news-list script")).toHaveCount(0);
 });
+
+test("searches for cities and updates the selected weather location", async ({ page }) => {
+  await page.goto("/");
+  await page.locator("#weather-search-input").fill("Cairo");
+  await page.locator("#weather-search-button").click();
+  await expect(page.locator("#weather-city")).toContainText("القاهرة");
+  await expect(page.locator("#weather-status")).toContainText("تم العثور على");
+
+  await page.locator("#map-search-input").fill("Berlin");
+  await page.locator("#map-search-button").click();
+  await expect(page.locator("#map-status")).toContainText("تم العثور على");
+});
+
+test("saves, restores and removes favorite places", async ({ page }) => {
+  await page.goto("/");
+  await page.locator("#save-place-button").click();
+  await expect(page.locator("#favorite-places .favorite-place")).toHaveCount(1);
+  await expect(page.locator("#favorite-places")).toContainText("برلين");
+  await page.reload();
+  await expect(page.locator("#favorite-places .favorite-place")).toHaveCount(1);
+  await page.locator("#favorite-places [data-remove-favorite]").click();
+  await expect(page.locator("#favorite-places .favorite-place")).toHaveCount(0);
+  await expect(page.locator("#favorite-places .favorites-empty")).toBeVisible();
+});
+
+test("converts currencies, supports identical currencies and swapping", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.locator("#rate-date")).toHaveText("2026-11-13");
+  await expect(page.locator("#conversion-value")).not.toHaveText("—");
+
+  await page.locator("#to-currency").selectOption("EUR");
+  await expect(page.locator("#rate-date")).toHaveText("لا يلزم تحويل");
+  await expect(page.locator("#currency-status")).toBeEmpty();
+
+  await page.locator("#to-currency").selectOption("USD");
+  await page.locator("#swap-currencies").click();
+  await expect(page.locator("#from-currency")).toHaveValue("USD");
+  await expect(page.locator("#to-currency")).toHaveValue("EUR");
+  await expect(page.locator("#rate-date")).toHaveText("2026-11-13");
+});
+
+test("shows a useful message when the currency provider is unavailable", async ({ page }) => {
+  await page.route("https://api.frankfurter.app/**", route => route.fulfill({ status: 503, body: "Unavailable" }));
+  await page.goto("/");
+  await expect(page.locator("#currency-status")).toContainText("غير متاحة");
+});
