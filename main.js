@@ -301,7 +301,7 @@ async function searchLocation(inputId, statusId, moveMap) {
     status.textContent = "تم العثور على " + place.name;
     input.value = "";
   } catch (error) {
-    if (requestId !== locationSearchRequestId) return;
+    if (requestId !== locationSelectionRequestId) return;
     status.textContent = error.message;
   }
 }
