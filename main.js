@@ -8,6 +8,12 @@ let locationSelectionRequestId = 0;
 const FAVORITES_KEY = "datum-favorite-places-v1";
 let holidayRequestId = 0;
 
+function escapeHtml(value) {
+  return String(value).replace(/[&<>"']/g, char => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+  })[char]);
+}
+
 const cities = [
   { name: "برلين · ألمانيا", zone: "Europe/Berlin" },
   { name: "لندن · المملكة المتحدة", zone: "Europe/London" },
@@ -130,7 +136,7 @@ function setLocation(location, updateMap = true) {
   if (map && updateMap) {
     map.setView([location.latitude, location.longitude], 8);
     marker.setLatLng([location.latitude, location.longitude]);
-    marker.bindPopup(location.name).openPopup();
+    marker.bindPopup(escapeHtml(location.name)).openPopup();
   }
   fetchWeather(location.latitude, location.longitude, location.name);
 }
@@ -281,7 +287,7 @@ function initMap() {
     const name = await reverseGeocode(lat, lng);
     if (requestId !== locationSelectionRequestId) return;
     setLocation({ name, latitude: lat, longitude: lng }, false);
-    marker.setLatLng([lat, lng]).bindPopup(name).openPopup();
+    marker.setLatLng([lat, lng]).bindPopup(escapeHtml(name)).openPopup();
     document.getElementById("map-status").textContent = "تم اختيار الموقع وتحديث الطقس.";
   });
 }
@@ -473,7 +479,7 @@ async function loadHolidays() {
       const formatted = new Intl.DateTimeFormat("ar", { weekday: "long", day: "numeric", month: "long" }).format(date);
       const localName = String(holiday.localName || holiday.name || "عطلة رسمية").replace(/[&<>"]/g, char => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[char]);
       const englishName = String(holiday.name || "").replace(/[&<>"]/g, "");
-      const types = Array.isArray(holiday.types) ? holiday.types.join(" · ") : "";
+      const types = Array.isArray(holiday.types) ? holiday.types.map(escapeHtml).join(" · ") : "";
       return `<article class="holiday-item"><div class="holiday-date"><strong>${date.getDate()}</strong><span>${new Intl.DateTimeFormat("ar", { month: "short" }).format(date)}</span></div><div class="holiday-description"><b>${localName}</b><span>${englishName}</span></div><small>${formatted} · ${types}</small></article>`;
     }).join("");
     status.textContent = `تم العثور على ${holidays.length} مناسبة رسمية في ${countryNames[country]} لعام ${year}.`;
