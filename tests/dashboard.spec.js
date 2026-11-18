@@ -242,3 +242,64 @@ test("shows a clear validation message for an unknown city", async ({ page }) =>
   await page.locator("#weather-search-button").click();
   await expect(page.locator("#weather-status")).toContainText("لم نعثر على هذه المدينة");
 });
+
+test("keeps the newest city search when an earlier geocoding request is slower", async ({ page }) => {
+  await page.route("https://geocoding-api.open-meteo.com/v1/search**", async route => {
+    const url = new URL(route.request().url());
+    const name = url.searchParams.get("name");
+    if (name === "Slow city") await new Promise(resolve => setTimeout(resolve, 400));
+    const isFast = name === "Fast city";
+    await route.fulfill({
+      json: {
+        results: [{
+          name: isFast ? "Fast city" : "Slow city",
+          country: "Test",
+          latitude: isFast ? 20 : 10,
+          longitude: isFast ? 20 : 10
+        }]
+      }
+    });
+  });
+
+  await page.goto("/");
+  await page.locator("#weather-search-input").fill("Slow city");
+  await page.locator("#weather-search-button").click();
+  await page.locator("#weather-search-input").fill("Fast city");
+  await page.locator("#weather-search-button").click();
+  await expect(page.locator("#weather-city")).toContainText("Fast city");
+  await page.waitForTimeout(500);
+  await expect(page.locator("#weather-city")).toContainText("Fast city");
+});
+
+test("shows a fallback when the weather provider is unavailable", async ({ page }) => {
+  await page.route("https://api.open-meteo.com/v1/forecast**", route =>
+    route.fulfill({ status: 503, body: "Unavailable" })
+  );
+  await page.goto("/");
+  await expect(page.locator("#weather-description")).toHaveText("البيانات غير متاحة حالياً");
+  await expect(page.locator("#weather-status")).toContainText("تعذر الاتصال بخدمة الطقس");
+});
+
+test("shows a fallback when the news provider is unavailable", async ({ page }) => {
+  await page.route("https://api.gdeltproject.org/api/v2/doc/doc**", route =>
+    route.fulfill({ status: 503, body: "Unavailable" })
+  );
+  await page.goto("/");
+  await expect(page.locator("#news-list .news-placeholder")).toContainText("تعذر تحميل الأخبار");
+});
+
+test("escapes untrusted holiday type labels", async ({ page }) => {
+  await page.route("https://date.nager.at/api/v3/PublicHolidays/**", route =>
+    route.fulfill({
+      json: [{
+        date: "2026-01-01",
+        localName: "عطلة اختبار",
+        name: "Test holiday",
+        types: ["<img src=x onerror=alert(1)>"]
+      }]
+    })
+  );
+  await page.goto("/");
+  await expect(page.locator("#holiday-list")).toContainText("<img src=x onerror=alert(1)>");
+  await expect(page.locator("#holiday-list img")).toHaveCount(0);
+});
