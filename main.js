@@ -4,6 +4,7 @@ let map;
 let marker;
 let radarLayer = null;
 let weatherRequestId = 0;
+let locationSearchRequestId = 0;
 const FAVORITES_KEY = "datum-favorite-places-v1";
 let holidayRequestId = 0;
 
@@ -284,6 +285,7 @@ function initMap() {
 }
 
 async function searchLocation(inputId, statusId, moveMap) {
+  const requestId = ++locationSearchRequestId;
   const input = document.getElementById(inputId);
   const status = document.getElementById(statusId);
   const query = input.value.trim();
@@ -291,11 +293,13 @@ async function searchLocation(inputId, statusId, moveMap) {
   status.textContent = "جارٍ البحث…";
   try {
     const place = await geocode(query);
+    if (requestId !== locationSearchRequestId) return;
     setLocation(place, moveMap);
     if (moveMap && map) map.setView([place.latitude, place.longitude], 9);
     status.textContent = "تم العثور على " + place.name;
     input.value = "";
   } catch (error) {
+    if (requestId !== locationSearchRequestId) return;
     status.textContent = error.message;
   }
 }
