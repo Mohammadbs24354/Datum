@@ -347,3 +347,21 @@ test("exposes clear accessible labels for theme and temperature controls", async
   await expect(page.getByRole("button", { name: "التحويل إلى فهرنهايت" })).toBeVisible();
   await expect(page.locator("#refresh-button")).toHaveAttribute("aria-label", "تحديث جميع البيانات");
 });
+
+test("publishes a valid installable PWA manifest and offline app shell", async ({ page, request }) => {
+  const manifestResponse = await request.get("/manifest.webmanifest");
+  expect(manifestResponse.ok()).toBeTruthy();
+  const manifest = await manifestResponse.json();
+  expect(manifest.name).toBe("Datum — لوحة العالم");
+  expect(manifest.display).toBe("standalone");
+  expect(manifest.start_url).toBe("./");
+
+  const workerResponse = await request.get("/sw.js");
+  expect(workerResponse.ok()).toBeTruthy();
+  const workerSource = await workerResponse.text();
+  expect(workerSource).toContain("caches.open");
+  expect(workerSource).toContain("datum-shell-v1");
+
+  const iconResponse = await request.get("/assets/datum-icon.svg");
+  expect(iconResponse.ok()).toBeTruthy();
+});

@@ -33,6 +33,10 @@ Datum is a responsive Arabic world dashboard built with vanilla HTML, CSS and Ja
 - Map library: [Leaflet](https://leafletjs.com/).
 - Reverse geocoding: [Nominatim](https://nominatim.org/).
 
+## Installable app and offline shell
+
+Datum is a Progressive Web App (PWA). On supported browsers, use the install prompt in the header to add it to the home screen or desktop. A service worker caches the application shell so the dashboard can reopen offline; live weather, currency, news and holiday requests still require an internet connection.
+
 ## Interface preferences
 
 Theme and temperature-unit choices are stored locally in the current browser. Weather values are re-rendered from the most recently received forecast, so changing units does not require another network request. The global refresh control requests fresh weather, currency, news and holiday data and reports completion in the header.
