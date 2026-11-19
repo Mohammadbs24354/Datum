@@ -7,6 +7,101 @@ let weatherRequestId = 0;
 let locationSelectionRequestId = 0;
 const FAVORITES_KEY = "datum-favorite-places-v1";
 let holidayRequestId = 0;
+const PREFERENCES_KEY = "datum-preferences-v2";
+let dashboardPreferences = readDashboardPreferences();
+let latestWeatherPayload = null;
+let weatherUnit = dashboardPreferences.temperatureUnit;
+
+function readDashboardPreferences() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(PREFERENCES_KEY) || "{}");
+    return {
+      theme: saved.theme === "dark" ? "dark" : "light",
+      temperatureUnit: saved.temperatureUnit === "fahrenheit" ? "fahrenheit" : "celsius"
+    };
+  } catch {
+    return { theme: "light", temperatureUnit: "celsius" };
+  }
+}
+
+function saveDashboardPreferences() {
+  try {
+    localStorage.setItem(PREFERENCES_KEY, JSON.stringify(dashboardPreferences));
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function formatTemperature(value) {
+  const temperature = weatherUnit === "fahrenheit" ? (Number(value) * 9 / 5) + 32 : Number(value);
+  return Math.round(temperature) + "°" + (weatherUnit === "fahrenheit" ? "F" : "C");
+}
+
+function renderWeatherTemperatures(data) {
+  const current = data.current;
+  document.getElementById("current-temp").textContent = formatTemperature(current.temperature_2m);
+  document.getElementById("feels-like").textContent = "الإحساس: " + formatTemperature(current.apparent_temperature);
+  document.getElementById("overview-temp").textContent = formatTemperature(current.temperature_2m);
+  document.getElementById("forecast-list").innerHTML = data.daily.time.map((day, index) => {
+    const [label, icon] = weatherInfo(data.daily.weather_code[index]);
+    const date = new Date(day + "T12:00:00");
+    const dayName = index === 0 ? "اليوم" : new Intl.DateTimeFormat("ar", { weekday: "long" }).format(date);
+    return `<div class="forecast-row"><span class="day">${dayName}</span><span class="icon" title="${escapeHtml(label)}">${icon}</span><strong>${formatTemperature(data.daily.temperature_2m_max[index])}</strong><small>${formatTemperature(data.daily.temperature_2m_min[index])}</small></div>`;
+  }).join("");
+}
+
+function applyDashboardPreferences() {
+  document.documentElement.dataset.theme = dashboardPreferences.theme;
+  const themeButton = document.getElementById("theme-toggle");
+  const unitButton = document.getElementById("unit-toggle");
+  if (themeButton) {
+    const dark = dashboardPreferences.theme === "dark";
+    themeButton.textContent = dark ? "☀" : "☾";
+    themeButton.setAttribute("aria-pressed", String(dark));
+    themeButton.setAttribute("aria-label", dark ? "تفعيل الوضع الفاتح" : "تفعيل الوضع الداكن");
+    themeButton.title = dark ? "تفعيل الوضع الفاتح" : "تفعيل الوضع الداكن";
+  }
+  if (unitButton) {
+    unitButton.textContent = weatherUnit === "fahrenheit" ? "°F" : "°C";
+    unitButton.setAttribute("aria-label", weatherUnit === "fahrenheit" ? "التحويل إلى مئوية" : "التحويل إلى فهرنهايت");
+    unitButton.title = unitButton.getAttribute("aria-label");
+  }
+  if (latestWeatherPayload) renderWeatherTemperatures(latestWeatherPayload);
+}
+
+function initDashboardPreferences() {
+  applyDashboardPreferences();
+  document.getElementById("theme-toggle").addEventListener("click", () => {
+    dashboardPreferences.theme = dashboardPreferences.theme === "dark" ? "light" : "dark";
+    applyDashboardPreferences();
+    saveDashboardPreferences();
+  });
+  document.getElementById("unit-toggle").addEventListener("click", () => {
+    weatherUnit = weatherUnit === "celsius" ? "fahrenheit" : "celsius";
+    dashboardPreferences.temperatureUnit = weatherUnit;
+    applyDashboardPreferences();
+    saveDashboardPreferences();
+  });
+}
+
+async function refreshAllData() {
+  const button = document.getElementById("refresh-button");
+  const status = document.getElementById("sync-status");
+  button.disabled = true;
+  button.classList.add("is-loading");
+  status.textContent = "جارٍ تحديث جميع البيانات…";
+  const results = await Promise.allSettled([
+    fetchWeather(activeLocation.latitude, activeLocation.longitude, activeLocation.name),
+    convertCurrency(),
+    loadWorldNews(),
+    loadHolidays()
+  ]);
+  const failed = results.filter(result => result.status === "rejected").length;
+  status.textContent = failed ? "اكتمل التحديث مع بعض الأخطاء" : "آخر تحديث: " + new Intl.DateTimeFormat("ar", { hour: "2-digit", minute: "2-digit" }).format(new Date());
+  button.disabled = false;
+  button.classList.remove("is-loading");
+}
 
 function escapeHtml(value) {
   return String(value).replace(/[&<>"']/g, char => ({
@@ -73,12 +168,12 @@ async function fetchWeather(latitude, longitude, placeName) {
     const data = await response.json();
     if (requestId !== weatherRequestId) return;
     const current = data.current;
+    latestWeatherPayload = data;
     const [description, symbol] = weatherInfo(current.weather_code);
     document.getElementById("weather-city").textContent = placeName;
     document.getElementById("weather-symbol").textContent = symbol;
-    document.getElementById("current-temp").textContent = Math.round(current.temperature_2m) + "°";
     document.getElementById("weather-description").textContent = description;
-    document.getElementById("feels-like").textContent = "الإحساس: " + Math.round(current.apparent_temperature) + "°";
+    renderWeatherTemperatures(data);
     document.getElementById("humidity").textContent = current.relative_humidity_2m + "%";
     document.getElementById("wind-speed").textContent = Math.round(current.wind_speed_10m) + " كم/س";
     document.getElementById("rain-chance").textContent = (data.daily.precipitation_probability_max?.[0] ?? "—") + "%";
@@ -86,14 +181,7 @@ async function fetchWeather(latitude, longitude, placeName) {
     document.getElementById("sunrise-time").textContent = solarTime(data.daily.sunrise?.[0]);
     document.getElementById("sunset-time").textContent = solarTime(data.daily.sunset?.[0]);
     document.getElementById("uv-index").textContent = data.daily.uv_index_max?.[0] ?? "—";
-    document.getElementById("overview-temp").textContent = Math.round(current.temperature_2m) + "°";
     document.getElementById("overview-weather").textContent = description;
-    document.getElementById("forecast-list").innerHTML = data.daily.time.map((day, index) => {
-      const [label, icon] = weatherInfo(data.daily.weather_code[index]);
-      const date = new Date(day + "T12:00:00");
-      const dayName = index === 0 ? "اليوم" : new Intl.DateTimeFormat("ar", { weekday: "long" }).format(date);
-      return `<div class="forecast-row"><span class="day">${dayName}</span><span class="icon" title="${label}">${icon}</span><strong>${Math.round(data.daily.temperature_2m_max[index])}°</strong><small>${Math.round(data.daily.temperature_2m_min[index])}°</small></div>`;
-    }).join("");
     status.textContent = "تم تحديث الطقس بنجاح.";
   } catch (error) {
     if (requestId !== weatherRequestId) return;
@@ -534,10 +622,7 @@ document.getElementById("locate-button").addEventListener("click", () => {
     status.textContent = "تم تحديد موقعك الحالي.";
   }, () => { status.textContent = "لم نتمكن من تحديد موقعك. تحقق من الأذونات."; }, { enableHighAccuracy: true, timeout: 10000 });
 });
-document.getElementById("refresh-button").addEventListener("click", () => {
-  updateClocks();
-  fetchWeather(activeLocation.latitude, activeLocation.longitude, activeLocation.name);
-});
+document.getElementById("refresh-button").addEventListener("click", refreshAllData);
 
 document.getElementById("amount-input").addEventListener("input", convertCurrency);
 document.getElementById("from-currency").addEventListener("change", convertCurrency);
@@ -557,6 +642,7 @@ document.getElementById("holiday-load").addEventListener("click", loadHolidays);
 document.getElementById("holiday-country").addEventListener("change", loadHolidays);
 document.getElementById("holiday-year").addEventListener("change", loadHolidays);
 
+initDashboardPreferences();
 updateClocks();
 setInterval(updateClocks, 1000);
 initDateTools();

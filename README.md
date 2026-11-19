@@ -4,6 +4,11 @@ Datum is a responsive Arabic world dashboard built with vanilla HTML, CSS and Ja
 
 ## Features
 
+- Light and dark themes with persistent preferences.
+- Switch weather temperatures between Celsius and Fahrenheit without another API request.
+- One-click refresh for weather, exchange rates, news and public holidays.
+- Accessible utility controls, visible synchronization feedback and reduced-motion support.
+
 - Live world clocks for Berlin, London, New York, Dubai, Tokyo and Sydney.
 - Current weather, five-day forecast, sunrise, sunset and daily maximum UV index.
 - Interactive world map powered by Leaflet and OpenStreetMap, with street, satellite and terrain basemaps.
@@ -27,6 +32,10 @@ Datum is a responsive Arabic world dashboard built with vanilla HTML, CSS and Ja
 - Precipitation radar: [RainViewer Weather Maps API](https://www.rainviewer.com/api/weather-maps-api.html). Its free API is intended for personal/educational use, has no uptime guarantee, and currently limits native radar zoom to level 7.
 - Map library: [Leaflet](https://leafletjs.com/).
 - Reverse geocoding: [Nominatim](https://nominatim.org/).
+
+## Interface preferences
+
+Theme and temperature-unit choices are stored locally in the current browser. Weather values are re-rendered from the most recently received forecast, so changing units does not require another network request. The global refresh control requests fresh weather, currency, news and holiday data and reports completion in the header.
 
 ## Automated browser tests
 

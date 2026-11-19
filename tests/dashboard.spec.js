@@ -303,3 +303,47 @@ test("escapes untrusted holiday type labels", async ({ page }) => {
   await expect(page.locator("#holiday-list")).toContainText("<img src=x onerror=alert(1)>");
   await expect(page.locator("#holiday-list img")).toHaveCount(0);
 });
+
+
+test("switches between light and dark themes and persists the preference", async ({ page }) => {
+  await page.goto("/");
+  const theme = page.locator("#theme-toggle");
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+  await theme.click();
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+  await expect(theme).toHaveAttribute("aria-pressed", "true");
+  await page.reload();
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+  await page.locator("#theme-toggle").click();
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+});
+
+test("converts current and forecast temperatures between Celsius and Fahrenheit", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.locator("#current-temp")).toHaveText("18°C");
+  await page.locator("#unit-toggle").click();
+  await expect(page.locator("#current-temp")).toHaveText("64°F");
+  await expect(page.locator("#feels-like")).toContainText("68°F");
+  await expect(page.locator("#forecast-list .forecast-row").first().locator("strong")).toHaveText("70°F");
+  await page.reload();
+  await expect(page.locator("#current-temp")).toHaveText("64°F");
+  await page.locator("#unit-toggle").click();
+  await expect(page.locator("#current-temp")).toHaveText("18°C");
+});
+
+test("refreshes weather, currency, news and holidays from the global refresh control", async ({ page }) => {
+  await page.goto("/");
+  await page.locator("#refresh-button").click();
+  await expect(page.locator("#weather-status")).toContainText("تم تحديث الطقس بنجاح.");
+  await expect(page.locator("#rate-date")).toHaveText("2026-11-13");
+  await expect(page.locator("#holiday-list .holiday-item")).toHaveCount(1);
+  await expect(page.locator("#sync-status")).not.toContainText("جارٍ تحديث");
+  await expect(page.locator("#refresh-button")).toBeEnabled();
+});
+
+test("exposes clear accessible labels for theme and temperature controls", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.getByRole("button", { name: "تفعيل الوضع الداكن" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "التحويل إلى فهرنهايت" })).toBeVisible();
+  await expect(page.locator("#refresh-button")).toHaveAttribute("aria-label", "تحديث جميع البيانات");
+});

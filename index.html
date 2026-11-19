@@ -6,6 +6,7 @@
   <meta name="theme-color" content="#101827">
   <meta name="description" content="Datum — لوحة معلومات عالمية للوقت والطقس والخرائط والتاريخ.">
   <title>Datum — لوحة العالم</title>
+  <meta name="color-scheme" content="light dark">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -30,7 +31,7 @@
       <div class="sidebar-bottom">
         <div class="live-indicator"><i></i> الخدمات متصلة</div>
         <p>بيانات الطقس من Open-Meteo<br>والخرائط من OpenStreetMap.</p>
-        <span class="version">DATUM · الإصدار 2.0</span>
+        <span class="version">DATUM · الإصدار 3.0</span>
       </div>
     </aside>
 
@@ -55,7 +56,10 @@
         <div><span class="eyebrow">لوحة التحكم</span><h1>لوحة العالم</h1></div>
         <div class="topbar-actions">
           <span class="today-label" id="today-label">—</span>
-          <button class="customize-button" id="open-customizer" type="button">⚙ تخصيص اللوحة</button><button class="icon-button" id="refresh-button" type="button" title="تحديث البيانات" aria-label="تحديث البيانات">↻</button>
+          <span class="sync-status" id="sync-status" role="status" aria-live="polite">البيانات جاهزة</span>
+          <button class="utility-button" id="unit-toggle" type="button" aria-label="تغيير وحدة الحرارة" title="تغيير وحدة الحرارة">°C</button>
+          <button class="utility-button" id="theme-toggle" type="button" aria-label="تفعيل الوضع الداكن" aria-pressed="false" title="تبديل المظهر">☾</button>
+          <button class="customize-button" id="open-customizer" type="button">⚙ تخصيص اللوحة</button><button class="icon-button" id="refresh-button" type="button" title="تحديث جميع البيانات" aria-label="تحديث جميع البيانات">↻</button>
           <div class="avatar">D</div>
         </div>
       </header>
