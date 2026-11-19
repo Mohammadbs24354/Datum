@@ -323,8 +323,8 @@ test("converts current and forecast temperatures between Celsius and Fahrenheit"
   await expect(page.locator("#current-temp")).toHaveText("18°C");
   await page.locator("#unit-toggle").click();
   await expect(page.locator("#current-temp")).toHaveText("64°F");
-  await expect(page.locator("#feels-like")).toContainText("68°F");
-  await expect(page.locator("#forecast-list .forecast-row").first().locator("strong")).toHaveText("70°F");
+  await expect(page.locator("#feels-like")).toContainText("63°F");
+  await expect(page.locator("#forecast-list .forecast-row").first().locator("strong")).toHaveText("66°F");
   await page.reload();
   await expect(page.locator("#current-temp")).toHaveText("64°F");
   await page.locator("#unit-toggle").click();

@@ -97,8 +97,13 @@ async function refreshAllData() {
     loadWorldNews(),
     loadHolidays()
   ]);
-  const failed = results.filter(result => result.status === "rejected").length;
-  status.textContent = failed ? "اكتمل التحديث مع بعض الأخطاء" : "آخر تحديث: " + new Intl.DateTimeFormat("ar", { hour: "2-digit", minute: "2-digit" }).format(new Date());
+  const failed = results.some(result => result.status === "rejected") || [
+    document.getElementById("weather-status").textContent,
+    document.getElementById("currency-status").textContent,
+    document.getElementById("news-status").textContent,
+    document.getElementById("holiday-status").textContent
+  ].some(message => /تعذر|غير متاحة|حدث خطأ/.test(message));
+  status.textContent = failed ? "اكتمل التحديث جزئياً · تحقق من رسائل الأقسام" : "آخر تحديث: " + new Intl.DateTimeFormat("ar", { hour: "2-digit", minute: "2-digit" }).format(new Date());
   button.disabled = false;
   button.classList.remove("is-loading");
 }
