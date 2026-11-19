@@ -64,7 +64,7 @@ test("loads the dashboard and renders live-data sections from fixtures", async (
   await page.goto("/");
   await expect(page.getByRole("heading", { name: "لوحة العالم" })).toBeVisible();
   await expect(page.locator("#clock-grid .clock-card")).toHaveCount(6);
-  await expect(page.locator("#current-temp")).toHaveText("18°");
+  await expect(page.locator("#current-temp")).toHaveText("18°C");
   await expect(page.locator("#forecast-list .forecast-row")).toHaveCount(5);
   await expect(page.locator("#map")).toBeVisible();
   await expect(page.locator("#holiday-list .holiday-item")).toHaveCount(1);
