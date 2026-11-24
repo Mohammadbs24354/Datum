@@ -473,3 +473,33 @@ test("provides scrollable bottom navigation and safe-area spacing on narrow phon
   await page.locator('.nav-link[href="#productivity"]').click();
   await expect(page.locator("#productivity")).toBeInViewport();
 });
+
+
+test("boots the dashboard through dedicated object-oriented feature controllers", async ({ page }) => {
+  const pageErrors = [];
+  page.on("pageerror", error => pageErrors.push(error.message));
+  await page.goto("/");
+  const controllers = await page.evaluate(() => ({
+    app: window.datumApp?.constructor?.name,
+    core: window.datumApp?.core?.constructor?.name,
+    pwa: window.datumApp?.pwa?.constructor?.name,
+    preferences: window.datumApp?.preferences?.constructor?.name,
+    weather: window.datumApp?.weather?.constructor?.name,
+    financeNews: window.datumApp?.financeNews?.constructor?.name,
+    customizer: window.datumApp?.customizer?.constructor?.name,
+    calendar: window.datumApp?.calendar?.constructor?.name,
+    productivity: window.datumApp?.productivity?.constructor?.name
+  }));
+  expect(controllers).toEqual({
+    app: "DatumApplication",
+    core: "CoreUtils",
+    pwa: "PwaManager",
+    preferences: "PreferencesManager",
+    weather: "WeatherService",
+    financeNews: "FinanceNewsService",
+    customizer: "DashboardCustomizer",
+    calendar: "CalendarService",
+    productivity: "ProductivityManager"
+  });
+  expect(pageErrors).toEqual([]);
+});
