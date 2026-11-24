@@ -31,6 +31,7 @@
         <a class="nav-link" href="#world-news"><span>▤</span> أخبار العالم</a>
         <a class="nav-link" href="#calendar"><span>▣</span> التقويم والعطلات</a>
         <a class="nav-link" href="#date-tools"><span>▦</span> أدوات التاريخ</a>
+        <a class="nav-link" href="#productivity"><span>✓</span> الإنتاجية</a>
       </nav>
       <div class="sidebar-bottom">
         <div class="live-indicator"><i></i> الخدمات متصلة</div>
@@ -50,6 +51,7 @@
           <label><input type="checkbox" data-section-toggle="world-news" checked> أخبار العالم</label>
           <label><input type="checkbox" data-section-toggle="calendar" checked> التقويم والعطلات</label>
           <label><input type="checkbox" data-section-toggle="date-tools" checked> أدوات التاريخ</label>
+          <label><input type="checkbox" data-section-toggle="productivity" checked> مركز الإنتاجية</label>
         </div>
         <div class="customizer-footer"><button type="button" class="reset-layout" id="reset-layout">استعادة الكل</button><button type="submit" class="save-layout" id="save-layout">حفظ التخصيص</button></div>
         <p id="customizer-status" class="status-message" role="status"></p>
@@ -154,6 +156,54 @@
         <div class="date-tools-grid">
           <article class="tool-card"><div class="tool-card-title"><span class="tool-icon">▦</span><div><h3>مستكشف التاريخ</h3><p>اعرض اليوم واسم الشهر للتاريخ الذي تختاره.</p></div></div><label for="date-picker">اختر التاريخ</label><input id="date-picker" type="date"><div class="date-result" id="date-result">اختر تاريخاً للبدء</div></article>
           <article class="tool-card"><div class="tool-card-title"><span class="tool-icon">⌛</span><div><h3>حاسبة الأيام</h3><p>احسب عدد الأيام بين تاريخين.</p></div></div><div class="date-range-inputs"><div><label for="date-start">من تاريخ</label><input id="date-start" type="date"></div><div><label for="date-end">إلى تاريخ</label><input id="date-end" type="date"></div></div><div class="date-result" id="days-result">اختر تاريخ البداية والنهاية</div></article>
+        </div>
+      </section>
+
+
+      <section class="section-block" id="productivity">
+        <div class="section-heading"><div><p class="eyebrow">خطط بوضوح وأنجز أكثر</p><h2>مركز الإنتاجية</h2></div><span class="section-note">مهامك وملاحظاتك وتركيزك في مكان واحد</span></div>
+        <div class="productivity-stats" aria-label="ملخص المهام">
+          <article><span>كل المهام</span><strong id="task-total">0</strong></article>
+          <article><span>قيد الإنجاز</span><strong id="task-open">0</strong></article>
+          <article><span>مكتملة</span><strong id="task-completed">0</strong></article>
+          <article><span>نسبة الإنجاز</span><strong id="task-progress">0%</strong></article>
+        </div>
+        <div class="productivity-layout">
+          <article class="productivity-card task-card">
+            <div class="productivity-card-heading"><div><h3>قائمة المهام</h3><p>أنشئ مهاماً وحدد أولوياتها ومواعيدها.</p></div><span class="productivity-icon">✓</span></div>
+            <form id="task-form" class="task-form">
+              <label class="visually-hidden" for="task-title">عنوان المهمة</label>
+              <input id="task-title" type="text" maxlength="120" placeholder="ما الذي تريد إنجازه؟" required>
+              <div class="task-form-row">
+                <label for="task-due">موعد التسليم</label><input id="task-due" type="date">
+                <label for="task-priority">الأولوية</label><select id="task-priority"><option value="normal">عادية</option><option value="high">عالية</option><option value="low">منخفضة</option></select>
+                <button type="submit" class="primary-action">إضافة المهمة</button>
+              </div>
+            </form>
+            <div class="task-toolbar" role="group" aria-label="تصفية المهام">
+              <button type="button" class="task-filter active" data-task-filter="all" aria-pressed="true">الكل</button>
+              <button type="button" class="task-filter" data-task-filter="open" aria-pressed="false">النشطة</button>
+              <button type="button" class="task-filter" data-task-filter="completed" aria-pressed="false">المكتملة</button>
+            </div>
+            <div id="task-list" class="task-list" aria-live="polite"><p class="empty-state">لا توجد مهام بعد. أضف أول مهمة لتبدأ.</p></div>
+            <p id="task-status" class="status-message" role="status"></p>
+          </article>
+          <div class="productivity-side">
+            <article class="productivity-card focus-card">
+              <div class="productivity-card-heading"><div><h3>مؤقت التركيز</h3><p>جلسة تركيز قصيرة بأسلوب Pomodoro.</p></div><span class="productivity-icon">◷</span></div>
+              <div class="focus-mode" id="focus-mode">جلسة تركيز · 25 دقيقة</div>
+              <strong class="focus-time" id="focus-time" role="timer" aria-live="off">25:00</strong>
+              <div class="focus-progress"><span id="focus-progress"></span></div>
+              <div class="focus-controls"><button type="button" id="focus-start" class="primary-action">ابدأ التركيز</button><button type="button" id="focus-reset" class="secondary-button">إعادة ضبط</button></div>
+              <p id="focus-status" class="status-message" role="status">جاهز لجلسة جديدة.</p>
+            </article>
+            <article class="productivity-card notes-card">
+              <div class="productivity-card-heading"><div><h3>الملاحظات السريعة</h3><p>تُحفظ تلقائياً على هذا الجهاز.</p></div><span class="productivity-icon">✎</span></div>
+              <label class="visually-hidden" for="quick-notes">ملاحظاتك</label>
+              <textarea id="quick-notes" rows="7" maxlength="5000" placeholder="اكتب فكرة أو ملاحظة أو شيئاً لا تريد نسيانه…"></textarea>
+              <div class="notes-footer"><span id="notes-count">0 / 5000</span><span id="notes-status" role="status">محفوظة محلياً</span></div>
+            </article>
+          </div>
         </div>
       </section>
 
