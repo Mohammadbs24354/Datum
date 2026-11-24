@@ -360,8 +360,70 @@ test("publishes a valid installable PWA manifest and offline app shell", async (
   expect(workerResponse.ok()).toBeTruthy();
   const workerSource = await workerResponse.text();
   expect(workerSource).toContain("caches.open");
-  expect(workerSource).toContain("datum-shell-v1");
+  expect(workerSource).toContain("datum-shell-v2");
 
   const iconResponse = await request.get("/assets/datum-icon.svg");
   expect(iconResponse.ok()).toBeTruthy();
+});
+
+
+test("manages tasks, filters them and persists changes locally", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.locator("#task-total")).toHaveText("0");
+  await page.locator("#task-title").fill("إعداد تقرير المشروع");
+  await page.locator("#task-due").fill("2026-12-01");
+  await page.locator("#task-priority").selectOption("high");
+  await page.locator("#task-form button[type=submit]").click();
+  await expect(page.locator("#task-total")).toHaveText("1");
+  await expect(page.locator("#task-open")).toHaveText("1");
+  await expect(page.locator("#task-list")).toContainText("إعداد تقرير المشروع");
+  await expect(page.locator("#task-list .priority-high")).toContainText("عالية");
+  await page.locator("#task-list input[data-task-complete]").check();
+  await expect(page.locator("#task-completed")).toHaveText("1");
+  await expect(page.locator("#task-progress")).toHaveText("100%");
+  await page.locator('[data-task-filter="open"]').click();
+  await expect(page.locator("#task-list .task-item")).toHaveCount(0);
+  await page.locator('[data-task-filter="completed"]').click();
+  await expect(page.locator("#task-list .task-item")).toHaveCount(1);
+  await page.reload();
+  await expect(page.locator("#task-total")).toHaveText("1");
+  await expect(page.locator("#task-completed")).toHaveText("1");
+  await page.locator("#task-list [data-task-delete]").click();
+  await expect(page.locator("#task-total")).toHaveText("0");
+});
+
+test("escapes task titles and validates empty submissions", async ({ page }) => {
+  await page.goto("/");
+  await page.locator("#task-form button[type=submit]").click();
+  await expect(page.locator("#task-status")).toContainText("اكتب عنوان المهمة");
+  await page.locator("#task-title").fill('<img src=x onerror=alert(1)>');
+  await page.locator("#task-form button[type=submit]").click();
+  await expect(page.locator("#task-list")).toContainText('<img src=x onerror=alert(1)>');
+  await expect(page.locator("#task-list img")).toHaveCount(0);
+});
+
+test("autosaves quick notes and restores them after reload", async ({ page }) => {
+  await page.goto("/");
+  await page.locator("#quick-notes").fill("خطة الأسبوع: مراجعة المشروع ثم نشر التحديثات.");
+  await expect(page.locator("#notes-status")).toHaveText("تم الحفظ");
+  await expect(page.locator("#notes-count")).toContainText(" / 5000");
+  await page.reload();
+  await expect(page.locator("#quick-notes")).toHaveValue("خطة الأسبوع: مراجعة المشروع ثم نشر التحديثات.");
+});
+
+test("starts, pauses and resets the focus timer", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.locator("#focus-time")).toHaveText("25:00");
+  await page.locator("#focus-start").click();
+  await expect(page.locator("#focus-start")).toHaveText("إيقاف مؤقت");
+  await page.waitForTimeout(1100);
+  await expect(page.locator("#focus-time")).not.toHaveText("25:00");
+  await page.locator("#focus-start").click();
+  await expect(page.locator("#focus-start")).toHaveText("استئناف");
+  const pausedTime = await page.locator("#focus-time").textContent();
+  await page.waitForTimeout(1100);
+  await expect(page.locator("#focus-time")).toHaveText(pausedTime);
+  await page.locator("#focus-reset").click();
+  await expect(page.locator("#focus-time")).toHaveText("25:00");
+  await expect(page.locator("#focus-start")).toHaveText("ابدأ التركيز");
 });
