@@ -72,3 +72,21 @@ The dashboard itself has no build step. Install the optional development depende
 ## Productivity workspace
 
 The dashboard includes a local-first productivity area with task management (due dates, priorities, completion filters and progress), a 25-minute focus timer, and automatically saved quick notes. Tasks and notes stay in the current browser profile using local storage; they are not synchronized to a server or shared across devices.
+
+
+## JavaScript architecture
+
+The browser code is organized into focused feature modules under `js/` instead of a single monolithic script:
+
+- `state.js`: shared application state and storage keys.
+- `core.js`: formatting, weather-code metadata and world-clock utilities.
+- `pwa.js`: install prompt, service-worker registration and connection status.
+- `preferences.js`: theme and temperature preferences.
+- `weather.js`: weather API, geocoding, map, radar and favorite places.
+- `finance-news.js`: currency conversion and news discovery.
+- `dashboard-customizer.js`: dashboard section visibility and layout preferences.
+- `calendar.js`: public holidays and date tools.
+- `productivity.js`: tasks, quick notes and focus timer.
+- `main.js`: `DatumApplication`, the composition root that connects the feature controllers and starts the app.
+
+Each feature is encapsulated in a dedicated class/controller. The HTML loads these classic scripts in dependency order, so the dashboard remains build-step-free and can still be opened from a simple static host.
