@@ -127,7 +127,7 @@ button,input,select,textarea{max-width:100%}
 .clock-card,.stat-card,.tool-card,.forecast-card,.currency-card,.currency-info-card,.news-card,.holiday-panel,.productivity-card{min-width:0}
 #map{width:100%;max-width:100%;touch-action:pan-x pan-y}
 .leaflet-container{max-width:100%;overscroll-behavior:contain}
-input,select,textarea{font-size:16px}
+
 @media(min-width:761px) and (max-width:1100px){
   .sidebar{width:76px;padding:22px 8px}
   .brand{justify-content:center;padding:0 0 28px}
@@ -149,6 +149,7 @@ input,select,textarea{font-size:16px}
   .map-canvas{height:390px}
 }
 @media(max-width:760px){
+  input,select,textarea{font-size:16px}
   html{scroll-padding-top:12px}
   body{font-size:14px;overflow-x:hidden}
   .sidebar{height:calc(66px + env(safe-area-inset-bottom));padding:5px 5px calc(5px + env(safe-area-inset-bottom));overflow:hidden}
