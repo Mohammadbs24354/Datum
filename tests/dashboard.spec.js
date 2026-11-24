@@ -428,3 +428,48 @@ test("starts, pauses and resets the focus timer", async ({ page }) => {
   await expect(page.locator("#focus-time")).toHaveText("25:00");
   await expect(page.locator("#focus-start")).toHaveText("ابدأ التركيز");
 });
+
+
+test("keeps the layout usable without horizontal page overflow on phone, tablet and laptop widths", async ({ page }) => {
+  const sizes = [
+    { width: 360, height: 800 },
+    { width: 390, height: 844 },
+    { width: 430, height: 932 },
+    { width: 768, height: 1024 },
+    { width: 820, height: 1180 },
+    { width: 1024, height: 768 },
+    { width: 1280, height: 800 },
+    { width: 1440, height: 900 }
+  ];
+  await page.goto("/");
+  for (const size of sizes) {
+    await page.setViewportSize(size);
+    await page.waitForTimeout(80);
+    const dimensions = await page.evaluate(() => ({
+      viewport: document.documentElement.clientWidth,
+      document: document.documentElement.scrollWidth,
+      main: document.querySelector(".main-content").getBoundingClientRect().width
+    }));
+    expect(dimensions.document, `horizontal overflow at ${size.width}px: ${JSON.stringify(dimensions)}`).toBeLessThanOrEqual(dimensions.viewport + 1);
+    expect(dimensions.main).toBeGreaterThan(0);
+    await expect(page.locator("#open-customizer")).toBeVisible();
+    await expect(page.locator("#map")).toBeVisible();
+  }
+});
+
+test("provides scrollable bottom navigation and safe-area spacing on narrow phones", async ({ page }) => {
+  await page.setViewportSize({ width: 360, height: 780 });
+  await page.goto("/");
+  const nav = page.locator(".main-nav");
+  await expect(nav).toBeVisible();
+  await expect(page.locator(".sidebar")).toHaveCSS("position", "fixed");
+  const metrics = await nav.evaluate(element => ({
+    client: element.clientWidth,
+    scroll: element.scrollWidth,
+    links: element.querySelectorAll(".nav-link").length
+  }));
+  expect(metrics.links).toBeGreaterThanOrEqual(8);
+  expect(metrics.scroll).toBeGreaterThan(metrics.client);
+  await page.locator('.nav-link[href="#productivity"]').click();
+  await expect(page.locator("#productivity")).toBeInViewport();
+});
