@@ -395,7 +395,8 @@ test("manages tasks, filters them and persists changes locally", async ({ page }
 test("escapes task titles and validates empty submissions", async ({ page }) => {
   await page.goto("/");
   await page.locator("#task-form button[type=submit]").click();
-  await expect(page.locator("#task-status")).toContainText("اكتب عنوان المهمة");
+  await expect(page.locator("#task-title")).toBeFocused();
+  await expect(page.locator("#task-list .task-item")).toHaveCount(0);
   await page.locator("#task-title").fill('<img src=x onerror=alert(1)>');
   await page.locator("#task-form button[type=submit]").click();
   await expect(page.locator("#task-list")).toContainText('<img src=x onerror=alert(1)>');
