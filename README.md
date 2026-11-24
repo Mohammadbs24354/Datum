@@ -67,3 +67,8 @@ The dashboard itself has no build step. Install the optional development depende
 - News headlines and article links are provided by GDELT and belong to their original publishers. Open the source article for full context.
 - Browser location access is optional and only runs after the user presses the location button and grants permission.
 - Map data is © OpenStreetMap contributors.
+
+
+## Productivity workspace
+
+The dashboard includes a local-first productivity area with task management (due dates, priorities, completion filters and progress), a 25-minute focus timer, and automatically saved quick notes. Tasks and notes stay in the current browser profile using local storage; they are not synchronized to a server or shared across devices.
